@@ -6,6 +6,8 @@ namespace MSP.Unity.Internal
 {
     internal sealed class EditorMockMSPClient : IMSPClient
     {
+        private readonly Dictionary<string, string> placementTokens = new Dictionary<string, string>();
+
         public string Version => "mock-0.1.0";
 
         public void Initialize(MSPInitializationParameters initParams, Action<bool, string> onComplete)
@@ -16,10 +18,10 @@ namespace MSP.Unity.Internal
             }
         }
 
-        public void LoadInterstitial(string placementId, MSPAdRequest adRequest, MSPAdListener adListener, Action<string> cacheAdToken)
+        public void LoadAd(string placementId, MSPAdRequest adRequest, MSPAdListener adListener)
         {
             var token = $"mock-{placementId}-{Guid.NewGuid():N}";
-            cacheAdToken(token);
+            placementTokens[placementId] = token;
 
             var loadInfo = new Dictionary<string, object>
             {
@@ -33,7 +35,21 @@ namespace MSP.Unity.Internal
             }
         }
 
-        public void ShowInterstitial(string placementId, string nativeAdToken)
+        public MSPAd GetAd(string placementId, MSPAdListener adListener)
+        {
+            if (!placementTokens.TryGetValue(placementId, out var token))
+            {
+                return null;
+            }
+
+            var ad = new MSPInterstitialAd(placementId, this, adListener)
+            {
+                NativeAdToken = token
+            };
+            return ad;
+        }
+
+        public void ShowAd(string placementId, string nativeAdToken)
         {
             Debug.Log($"[MSP Mock] Show interstitial. placementId={placementId}, token={nativeAdToken}");
         }

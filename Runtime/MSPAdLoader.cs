@@ -7,7 +7,7 @@ namespace MSP.Unity
     public sealed class MSPAdLoader
     {
         private readonly IMSPClient client;
-        private readonly Dictionary<string, MSPInterstitialAd> interstitialCache = new Dictionary<string, MSPInterstitialAd>();
+        private readonly Dictionary<string, MSPAdListener> listeners = new Dictionary<string, MSPAdListener>();
 
         public MSPAdLoader()
         {
@@ -21,20 +21,18 @@ namespace MSP.Unity
                 throw new ArgumentNullException(nameof(adRequest));
             }
 
-            client.LoadInterstitial(placementId, adRequest, adListener, nativeToken =>
-            {
-                var ad = new MSPInterstitialAd(placementId, client, adListener)
-                {
-                    NativeAdToken = nativeToken
-                };
-                interstitialCache[placementId] = ad;
-            });
+            listeners[placementId] = adListener;
+            client.LoadAd(placementId, adRequest, adListener);
         }
 
-        public MSPInterstitialAd GetAd(string placementId)
+        public MSPAd GetAd(string placementId)
         {
-            interstitialCache.TryGetValue(placementId, out var ad);
-            return ad;
+            if (!listeners.TryGetValue(placementId, out var adListener))
+            {
+                return null;
+            }
+
+            return client.GetAd(placementId, adListener);
         }
     }
 }

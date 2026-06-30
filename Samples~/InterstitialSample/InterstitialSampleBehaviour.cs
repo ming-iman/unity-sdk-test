@@ -25,7 +25,7 @@ namespace MSP.Unity.Samples
             {
                 OnAdLoaded = (pid, _) =>
                 {
-                    cachedAd = loader.GetAd(pid);
+                    cachedAd = loader.GetAd(pid) as MSPInterstitialAd;
                     Debug.Log($"[MSP Sample] Ad loaded for {pid}");
                 },
                 OnError = (message, _) => Debug.LogError($"[MSP Sample] Load error: {message}"),

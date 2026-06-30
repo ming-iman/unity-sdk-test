@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MSP.Unity.Internal
@@ -6,6 +7,7 @@ namespace MSP.Unity.Internal
     internal sealed class AndroidMSPClient : IMSPClient
     {
         private const string BridgeClassName = "com.particles.msp.unity.MSPUnityBridge";
+        private readonly Dictionary<string, string> placementTokens = new Dictionary<string, string>();
 
         public string Version
         {
@@ -27,18 +29,39 @@ namespace MSP.Unity.Internal
             }
         }
 
-        public void LoadInterstitial(string placementId, MSPAdRequest adRequest, MSPAdListener adListener, Action<string> cacheAdToken)
+        public void LoadAd(string placementId, MSPAdRequest adRequest, MSPAdListener adListener)
         {
             var token = $"{placementId}-{Guid.NewGuid():N}";
+            placementTokens[placementId] = token;
             using var bridge = new AndroidJavaClass(BridgeClassName);
-            bridge.CallStatic("loadInterstitial", placementId, token);
-            cacheAdToken(token);
+            bridge.CallStatic("loadAd", placementId, token);
         }
 
-        public void ShowInterstitial(string placementId, string nativeAdToken)
+        public MSPAd GetAd(string placementId, MSPAdListener adListener)
+        {
+            if (!placementTokens.TryGetValue(placementId, out var nativeAdToken))
+            {
+                return null;
+            }
+
+            using var bridge = new AndroidJavaClass(BridgeClassName);
+            var found = bridge.CallStatic<bool>("getAd", placementId, nativeAdToken);
+            if (!found)
+            {
+                return null;
+            }
+
+            var ad = new MSPInterstitialAd(placementId, this, adListener)
+            {
+                NativeAdToken = nativeAdToken
+            };
+            return ad;
+        }
+
+        public void ShowAd(string placementId, string nativeAdToken)
         {
             using var bridge = new AndroidJavaClass(BridgeClassName);
-            bridge.CallStatic("showInterstitial", placementId, nativeAdToken);
+            bridge.CallStatic("showAd", placementId, nativeAdToken);
         }
     }
 }

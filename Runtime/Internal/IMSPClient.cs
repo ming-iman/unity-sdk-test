@@ -7,7 +7,8 @@ namespace MSP.Unity.Internal
     {
         string Version { get; }
         void Initialize(MSPInitializationParameters initParams, Action<bool, string> onComplete);
-        void LoadInterstitial(string placementId, MSPAdRequest adRequest, MSPAdListener adListener, Action<string> cacheAdToken);
-        void ShowInterstitial(string placementId, string nativeAdToken);
+        void LoadAd(string placementId, MSPAdRequest adRequest, MSPAdListener adListener);
+        MSPAd GetAd(string placementId, MSPAdListener adListener);
+        void ShowAd(string placementId, string nativeAdToken);
     }
 }

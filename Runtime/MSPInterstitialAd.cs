@@ -15,7 +15,7 @@ namespace MSP.Unity
 
         public void Show()
         {
-            client.ShowInterstitial(PlacementId, NativeAdToken);
+            client.ShowAd(PlacementId, NativeAdToken);
             if (adListener != null && adListener.OnAdImpression != null)
             {
                 adListener.OnAdImpression(this);
