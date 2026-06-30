@@ -1,0 +1,18 @@
+{
+  "name": "MSP.Unity.Editor",
+  "rootNamespace": "MSP.Unity.Editor",
+  "references": [
+    "MSP.Unity.Runtime"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
