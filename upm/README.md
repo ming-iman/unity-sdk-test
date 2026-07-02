@@ -17,5 +17,6 @@ Monorepo layout: see [../README.md](../README.md).
 
 - Git repo initialized locally
 - UPM-style structure created
-- Android/iOS native bridge skeleton added
+- Android bridge integrated and validated on demo app
+- iOS bridge wired with CocoaPods postprocess for demo export
 - Editor mock flow available for local demo

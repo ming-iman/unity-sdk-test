@@ -37,6 +37,21 @@ This builds the AAR and copies it to `demo/Assets/Plugins/Android/`.
 
 See `demo/Assets/Plugins/Android/README_MSP_SETUP.md` for Gradle / Artifactory / AdMob setup.
 
+### 4. iOS build (Pod-based)
+
+The Unity iOS postprocess now generates a `Podfile` in exported Xcode projects and runs
+`pod install` automatically.
+
+- Default MSP iOS SDK path: `../msp-ios-sdk` (sibling of `msp-unity-sdk`)
+- Override path: set env `MSP_IOS_SDK_PATH=/absolute/path/to/msp-ios-sdk`
+- Skip auto pod install: set env `MSP_UNITY_SKIP_POD_INSTALL=1`
+
+Build steps:
+
+1. In Unity, switch target to iOS and **Build** (export Xcode project).
+2. Open generated `Unity-iPhone.xcworkspace`.
+3. Run on device from Xcode.
+
 ## Related repos (siblings under NewsBreak)
 
 - `../msp-android` — native Android MSP SDK (Maven / local AAR source)
