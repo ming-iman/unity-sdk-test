@@ -1,0 +1,34 @@
+<dependencies>
+  <androidPackages>
+    <androidPackage spec="ai.themsp:google-adapter:4.1.0">
+      <repositories>
+        <repository>https://artifactory.nb-sandbox.com/artifactory/libs-release-local</repository>
+        <repository>https://artifactory.nb-sandbox.com/artifactory/libs-snapshot-local</repository>
+        <repository>https://maven.google.com</repository>
+        <repository>https://repo1.maven.org/maven2</repository>
+      </repositories>
+    </androidPackage>
+    <androidPackage spec="ai.themsp:prebid-adapter:4.1.0">
+      <repositories>
+        <repository>https://artifactory.nb-sandbox.com/artifactory/libs-release-local</repository>
+        <repository>https://artifactory.nb-sandbox.com/artifactory/libs-snapshot-local</repository>
+        <repository>https://android-sdk.is.com/</repository>
+        <repository>https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea</repository>
+        <repository>https://repo.pubmatic.com/artifactory/public-repos</repository>
+        <repository>https://maven.google.com</repository>
+        <repository>https://repo1.maven.org/maven2</repository>
+      </repositories>
+    </androidPackage>
+    <androidPackage spec="ai.themsp:msp-core:4.1.0">
+      <repositories>
+        <repository>https://artifactory.nb-sandbox.com/artifactory/libs-release-local</repository>
+        <repository>https://artifactory.nb-sandbox.com/artifactory/libs-snapshot-local</repository>
+        <repository>https://android-sdk.is.com/</repository>
+        <repository>https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea</repository>
+        <repository>https://repo.pubmatic.com/artifactory/public-repos</repository>
+        <repository>https://maven.google.com</repository>
+        <repository>https://repo1.maven.org/maven2</repository>
+      </repositories>
+    </androidPackage>
+  </androidPackages>
+</dependencies>

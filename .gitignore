@@ -1,8 +1,22 @@
-Library/
-Logs/
-Temp/
-Obj/
-Build/
-Builds/
-UserSettings/
 .DS_Store
+
+# Unity demo generated
+demo/Library/
+demo/Temp/
+demo/Logs/
+demo/obj/
+demo/Build/
+demo/Builds/
+demo/UserSettings/
+demo/.utmp/
+demo/build/
+demo/*.apk
+
+# Android bridge build
+android-bridge/bridge/build/
+android-bridge/build/
+android-bridge/.gradle/
+android-bridge/.kotlin/
+
+# Unity .meta files must not live in android-bridge (Gradle-only tree)
+android-bridge/**/*.meta

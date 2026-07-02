@@ -1,0 +1,57 @@
+pluginManagement {
+    repositories {
+        **ARTIFACTORYREPOSITORY**
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+
+include ':launcher'
+include ':unityLibrary'
+**INCLUDES**
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+        **ARTIFACTORYREPOSITORY**
+        google()
+        mavenCentral()
+// Android Resolver Repos Start
+        def unityProjectPath = $/file:///**DIR_UNITYPROJECT**/$.replace("\\", "/")
+        maven {
+            url "https://artifactory.nb-sandbox.com/artifactory/libs-release-local" // Assets/ExternalDependencyManager/Editor/MSPDependencies.xml
+            credentials {
+                username = "services"
+                password = "services"
+            }
+        }
+        maven {
+            url "https://artifactory.nb-sandbox.com/artifactory/libs-snapshot-local" // Assets/ExternalDependencyManager/Editor/MSPDependencies.xml
+            credentials {
+                username = "services"
+                password = "services"
+            }
+        }
+        maven {
+            url "https://android-sdk.is.com/" // Assets/ExternalDependencyManager/Editor/MSPDependencies.xml:13, Assets/ExternalDependencyManager/Editor/MSPDependencies.xml:24
+        }
+        maven {
+            url "https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea" // Assets/ExternalDependencyManager/Editor/MSPDependencies.xml:13, Assets/ExternalDependencyManager/Editor/MSPDependencies.xml:24
+        }
+        maven {
+            url "https://repo.pubmatic.com/artifactory/public-repos" // Assets/ExternalDependencyManager/Editor/MSPDependencies.xml:13, Assets/ExternalDependencyManager/Editor/MSPDependencies.xml:24
+        }
+        maven {
+            url "https://maven.google.com" // Assets/ExternalDependencyManager/Editor/MSPDependencies.xml:13, Assets/ExternalDependencyManager/Editor/MSPDependencies.xml:24
+        }
+        maven {
+            url "https://repo1.maven.org/maven2" // Assets/ExternalDependencyManager/Editor/MSPDependencies.xml:13, Assets/ExternalDependencyManager/Editor/MSPDependencies.xml:24
+        }
+        mavenLocal()
+// Android Resolver Repos End
+        flatDir {
+            dirs "${project(':unityLibrary').projectDir}/libs"
+        }
+    }
+}
