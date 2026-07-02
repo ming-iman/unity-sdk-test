@@ -5,7 +5,7 @@ This folder contains the Unity Android bridge AAR:
 - `msp-unity-bridge-release.aar`
 
 `network_security_config.xml` (for HTTPS packet capture) is packaged inside the bridge AAR.
-Rebuild the AAR with `make install` in `msp-unity-android-bridge` after bridge changes.
+Rebuild the AAR with `make install` in `msp-unity-sdk/android-bridge` after bridge changes.
 Do **not** add `Assets/Plugins/Android/res/` — Unity 6000+ rejects plugin resources outside AARs.
 
 To run real ads on Android device, you still need runtime dependencies required by MSP:
