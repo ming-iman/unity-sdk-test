@@ -8,12 +8,33 @@ public class InterstitialTest : MonoBehaviour
     private const int DemoOrgId = 1061;
     private const int DemoAppId = 1;
 
+    private static string DefaultPlacementId
+    {
+        get
+        {
+#if UNITY_IOS
+            return "demo-ios-launch-fullscreen";
+#else
+            return "demo-android-interstitial";
+#endif
+        }
+    }
+
     private MSPAdLoader loader = new MSPAdLoader();
     private MSPInterstitialAd cachedAd;
-    [SerializeField] private string placementId = "demo-android-interstitial";
+    [SerializeField] private string placementId = DefaultPlacementId;
     [SerializeField] private string adNetwork = "msp_nova";
 
     private bool isInitialized;
+
+    private void Awake()
+    {
+#if UNITY_IOS
+        // Force iOS runtime values to avoid stale serialized Scene data.
+        placementId = "demo-ios-launch-fullscreen";
+        adNetwork = "msp_nova";
+#endif
+    }
 
     void Start()
     {
@@ -66,11 +87,13 @@ public class InterstitialTest : MonoBehaviour
 
     private void OnGUI()
     {
-        const int width = 220;
-        const int height = 60;
-        const int left = 20;
-        const int top = 20;
-        const int spacing = 16;
+        const int width = 320;
+        const int height = 96;
+        const int spacing = 24;
+
+        var totalHeight = height * 2 + spacing;
+        var left = (Screen.width - width) / 2;
+        var top = (Screen.height - totalHeight) / 2;
 
         if (GUI.Button(new Rect(left, top, width, height), "Load"))
         {

@@ -13,10 +13,13 @@ namespace MSP.Unity.Internal
         private static extern IntPtr msp_unity_get_version();
 
         [DllImport("__Internal")]
+        private static extern void msp_unity_set_log_level(int level);
+
+        [DllImport("__Internal")]
         private static extern void msp_unity_initialize(string prebidApiKey, int orgId, int appId, bool isInTestMode);
 
         [DllImport("__Internal")]
-        private static extern void msp_unity_load_ad(string placementId, string requestToken);
+        private static extern void msp_unity_load_ad(string placementId, string requestToken, string adNetwork);
 
         [DllImport("__Internal")]
         private static extern bool msp_unity_get_ad(string placementId, string requestToken);
@@ -39,19 +42,21 @@ namespace MSP.Unity.Internal
 
         public void SetLogLevel(int level)
         {
-            // TODO: expose iOS MSPLogger bridge if needed.
+#if UNITY_IOS && !UNITY_EDITOR
+            msp_unity_set_log_level(level);
+#else
             _ = level;
+#endif
         }
 
         public void Initialize(MSPInitializationParameters initParams, Action<bool, string> onComplete)
         {
+            MSPUnityListener.SetPendingInitCallback(onComplete);
 #if UNITY_IOS && !UNITY_EDITOR
             msp_unity_initialize(initParams.PrebidApiKey, initParams.OrgId, initParams.AppId, initParams.IsInTestMode);
+#else
+            onComplete?.Invoke(true, "MSP iOS init called.");
 #endif
-            if (onComplete != null)
-            {
-                onComplete(true, "MSP iOS init called.");
-            }
         }
 
         public void LoadAd(string placementId, MSPAdRequest adRequest, MSPAdListener adListener)
@@ -60,7 +65,8 @@ namespace MSP.Unity.Internal
             placementTokens[placementId] = token;
             MSPUnityListener.RegisterLoadListener(token, placementId, adListener);
 #if UNITY_IOS && !UNITY_EDITOR
-            msp_unity_load_ad(placementId, token);
+            var adNetwork = ResolveAdNetwork(adRequest);
+            msp_unity_load_ad(placementId, token, adNetwork ?? string.Empty);
 #endif
         }
 
@@ -94,6 +100,28 @@ namespace MSP.Unity.Internal
 #if UNITY_IOS && !UNITY_EDITOR
             msp_unity_show_ad(placementId, nativeAdToken);
 #endif
+        }
+
+        private static string ResolveAdNetwork(MSPAdRequest adRequest)
+        {
+            if (adRequest == null)
+            {
+                return null;
+            }
+
+            if (!string.IsNullOrWhiteSpace(adRequest.AdNetwork))
+            {
+                return adRequest.AdNetwork;
+            }
+
+            if (adRequest.CustomParams != null &&
+                adRequest.CustomParams.TryGetValue("ad_network", out var value) &&
+                value != null)
+            {
+                return value.ToString();
+            }
+
+            return null;
         }
     }
 }

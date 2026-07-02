@@ -4,10 +4,31 @@ namespace MSP.Unity.Samples
 {
     public sealed class InterstitialSampleBehaviour : MonoBehaviour
     {
+        private static string DefaultPlacementId
+        {
+            get
+            {
+#if UNITY_IOS
+                return "demo-ios-launch-fullscreen";
+#else
+                return "demo-android-interstitial";
+#endif
+            }
+        }
+
         private readonly MSPAdLoader loader = new MSPAdLoader();
         private MSPInterstitialAd cachedAd;
-        [SerializeField] private string placementId = "demo-android-interstitial";
+        [SerializeField] private string placementId = DefaultPlacementId;
         [SerializeField] private string adNetwork = "msp_nova";
+
+        private void Awake()
+        {
+#if UNITY_IOS
+            // Force iOS runtime values to avoid stale serialized Scene/Prefab data.
+            placementId = "demo-ios-launch-fullscreen";
+            adNetwork = "msp_nova";
+#endif
+        }
 
         private void Start()
         {
