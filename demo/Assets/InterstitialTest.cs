@@ -11,11 +11,13 @@ public class InterstitialTest : MonoBehaviour
     private MSPAdLoader loader = new MSPAdLoader();
     private MSPInterstitialAd cachedAd;
     [SerializeField] private string placementId = "demo-android-interstitial";
+    [SerializeField] private string adNetwork = "msp_nova";
 
     private bool isInitialized;
 
     void Start()
     {
+        Debug.Log("MSP start to init...");
         MSP.Unity.MSP.SetLogLevel(MSPLogLevel.VERBOSE);
         MSP.Unity.MSP.Initialize(new MSPInitializationParameters
         {
@@ -48,7 +50,8 @@ public class InterstitialTest : MonoBehaviour
             OnAdDismissed = _ => Debug.Log("Dismissed")
         };
 
-        loader.LoadAd(placementId, listener, new MSPAdRequest(placementId));
+        var request = new MSPAdRequest(placementId, adNetwork);
+        loader.LoadAd(placementId, listener, request);
     }
 
     public void Show()

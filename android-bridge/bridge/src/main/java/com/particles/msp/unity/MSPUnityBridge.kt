@@ -13,6 +13,7 @@ import com.particles.msp.api.MSPInitListener
 import com.particles.msp.api.MSPInitStatus
 import com.particles.msp.api.MSPInitializationParameters
 import com.particles.msp.util.HostConfig
+import com.particles.msp.util.Logger
 import com.particles.prebidadapter.MSP
 import com.unity3d.player.UnityPlayer
 import org.json.JSONObject
@@ -26,6 +27,8 @@ object MSPUnityBridge {
     private const val ON_EVENT = "OnNativeEvent"
     private const val ON_ERROR = "OnNativeError"
     private const val DEMO_INTERSTITIAL_PLACEMENT = "demo-android-interstitial"
+    // Default only when caller does not provide ad_network.
+    private const val DEMO_TEST_AD_NETWORK = "msp_nova"
 
     private val adLoaders = ConcurrentHashMap<String, AdLoader>()
     private val adListeners = ConcurrentHashMap<String, UnityAdListener>()
@@ -37,12 +40,10 @@ object MSPUnityBridge {
     @JvmStatic
     fun setLogLevel(level: Int) {
         try {
-            val loggerClass = Class.forName("com.particles.msp.util.Logger")
-            val method = loggerClass.getMethod("setLogLevel", Int::class.javaPrimitiveType)
-            method.invoke(null, level)
+            Logger.setLogLevel(level)
             Log.i(TAG, "setLogLevel called via MSP Logger. level=$level")
         } catch (t: Throwable) {
-            Log.w(TAG, "MSP Logger unavailable, skip setLogLevel. level=$level reason=${t.message}")
+            Log.w(TAG, "setLogLevel failed. level=$level reason=${t.message}")
         }
     }
 
@@ -116,10 +117,14 @@ object MSPUnityBridge {
     }
 
     @JvmStatic
-    fun loadAd(placementId: String, requestToken: String) {
+    fun loadAd(placementId: String, requestToken: String, adNetwork: String?) {
         val context = currentContext() ?: return
         val resolvedPlacementId = if (placementId.isBlank()) DEMO_INTERSTITIAL_PLACEMENT else placementId
-        Log.i(TAG, "loadAd called. placementId=$resolvedPlacementId requestToken=$requestToken")
+        val resolvedAdNetwork = adNetwork?.trim().takeUnless { it.isNullOrEmpty() } ?: DEMO_TEST_AD_NETWORK
+        Log.i(
+            TAG,
+            "loadAd called. placementId=$resolvedPlacementId requestToken=$requestToken adNetwork=$resolvedAdNetwork"
+        )
         readyAds.remove(requestToken)
         val adLoader = AdLoader()
         val adListener = UnityAdListener(resolvedPlacementId, requestToken)
@@ -132,12 +137,18 @@ object MSPUnityBridge {
             .setTestParams(
                 mapOf(
                     "test_ad" to true,
-                    "ad_network" to "msp_google",
+                    "ad_network" to resolvedAdNetwork,
                 )
             )
             .build()
 
         adLoader.loadAd(resolvedPlacementId, adListener, adRequest)
+    }
+
+    @JvmStatic
+    fun loadAd(placementId: String, requestToken: String) {
+        // Backward-compatible overload for older Unity C# layer.
+        loadAd(placementId, requestToken, null)
     }
 
     @JvmStatic

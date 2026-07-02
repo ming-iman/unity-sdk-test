@@ -7,6 +7,7 @@ namespace MSP.Unity.Samples
         private readonly MSPAdLoader loader = new MSPAdLoader();
         private MSPInterstitialAd cachedAd;
         [SerializeField] private string placementId = "demo-android-interstitial";
+        [SerializeField] private string adNetwork = "msp_nova";
 
         private void Start()
         {
@@ -32,7 +33,8 @@ namespace MSP.Unity.Samples
                 OnAdDismissed = _ => Debug.Log("[MSP Sample] Interstitial dismissed")
             };
 
-            loader.LoadAd(placementId, listener, new MSPAdRequest(placementId));
+            var request = new MSPAdRequest(placementId, adNetwork);
+            loader.LoadAd(placementId, listener, request);
         }
 
         public void Show()

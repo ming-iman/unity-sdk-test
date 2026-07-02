@@ -52,12 +52,12 @@
     <Analyzer Include="/Applications/Unity/Hub/Editor/6000.5.1f1/Unity.app/Contents/Resources/Scripting/BCLExtensions/TargetingPacks/netstandard2.1/analyzers/dotnet/roslyn4.0/cs/System.Text.Json.SourceGeneration.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/Editor/MSPSettingsProvider.cs">
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Editor/MSPSettingsProvider.cs">
       <Link>Editor/MSPSettingsProvider.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="/Users/macrofox/NewsBreak/msp-unity-sdk/Editor/MSP.Unity.Editor.asmdef">
+    <None Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Editor/MSP.Unity.Editor.asmdef">
       <Link>Editor/MSP.Unity.Editor.asmdef</Link>
     </None>
   </ItemGroup>

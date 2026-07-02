@@ -13,6 +13,7 @@ To run real ads on Android device, you still need runtime dependencies required 
 - `ai.themsp:prebid-adapter:4.1.0`
 - `ai.themsp:msp-core:4.1.0`
 - `ai.themsp:google-adapter:4.1.0` (required for `ad_network=msp_google` test ads)
+- `ai.themsp:nova-adapter:4.1.0` (required for `ad_network=msp_nova` test ads)
 - Their transitive dependencies (Google Play services, Kotlin stdlib, etc.)
 
 ## Dependency resolution

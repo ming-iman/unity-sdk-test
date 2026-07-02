@@ -1,5 +1,13 @@
 <dependencies>
   <androidPackages>
+    <androidPackage spec="ai.themsp:nova-adapter:4.1.0">
+      <repositories>
+        <repository>https://artifactory.nb-sandbox.com/artifactory/libs-release-local</repository>
+        <repository>https://artifactory.nb-sandbox.com/artifactory/libs-snapshot-local</repository>
+        <repository>https://maven.google.com</repository>
+        <repository>https://repo1.maven.org/maven2</repository>
+      </repositories>
+    </androidPackage>
     <androidPackage spec="ai.themsp:google-adapter:4.1.0">
       <repositories>
         <repository>https://artifactory.nb-sandbox.com/artifactory/libs-release-local</repository>

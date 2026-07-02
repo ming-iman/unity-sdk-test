@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "ai.themsp.unity": {
-      "version": "file:../upm",
+      "version": "file:../../upm",
       "depth": 0,
       "source": "local",
       "dependencies": {}

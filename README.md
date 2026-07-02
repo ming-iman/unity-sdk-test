@@ -21,7 +21,7 @@ Open `demo/` as a Unity project (Unity 6000.x tested).
 The demo references the local package via `Packages/manifest.json`:
 
 ```json
-"ai.themsp.unity": "file:../upm"
+"ai.themsp.unity": "file:../../upm"
 ```
 
 ### 2. Build Android bridge AAR
