@@ -8,18 +8,20 @@ This folder contains the Unity Android bridge AAR:
 Rebuild the AAR with `make install` in `msp-unity-sdk/android-bridge` after bridge changes.
 Do **not** add `Assets/Plugins/Android/res/` — Unity 6000+ rejects plugin resources outside AARs.
 
-To run real ads on Android device, you still need runtime dependencies required by MSP:
+To run real ads on Android device, you still need runtime dependencies required by MSP.
 
-- `ai.themsp:prebid-adapter:4.1.0`
-- `ai.themsp:msp-core:4.1.0`
-- `ai.themsp:google-adapter:4.1.0` (required for `ad_network=msp_google` test ads)
-- `ai.themsp:nova-adapter:4.1.0` (required for `ad_network=msp_nova` test ads)
-- Their transitive dependencies (Google Play services, Kotlin stdlib, etc.)
+Dependencies are declared by UPM packages (not in this demo `Assets` folder):
+
+- Core (`ai.themsp.unity.core`): `msp-core`, `prebid-adapter`
+- Nova adapter (`ai.themsp.unity.adapter.nova`): `nova-adapter`
+
+After changing packages, run **Assets > External Dependency Manager > Android Resolver > Force Resolve**.
 
 ## Dependency resolution
 
-Use EDM4U (`Assets/ExternalDependencyManager/Editor/MSPDependencies.xml`) and enable
-**Custom Gradle Settings Template** (`Assets/Plugins/Android/settingsTemplate.gradle`).
+Use EDM4U and enable **Custom Gradle Settings Template** (`Assets/Plugins/Android/settingsTemplate.gradle`).
+
+Dependency XML files are provided by installed MSP UPM packages under `Packages/`.
 
 The private Artifactory repos require credentials. `settingsTemplate.gradle` includes the
 same `services` / `services` credentials used by `msp-android/settings.gradle`.

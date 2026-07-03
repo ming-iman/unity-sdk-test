@@ -23,6 +23,7 @@ namespace MSP.Unity.Samples
 
         private void Awake()
         {
+            MSP.SetLogLevel(MSPLogLevel.VERBOSE);
 #if UNITY_IOS
             // Force iOS runtime values to avoid stale serialized Scene/Prefab data.
             placementId = "demo-ios-launch-fullscreen";

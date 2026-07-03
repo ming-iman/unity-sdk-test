@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "ai.themsp.unity": "file:../../upm",
+    "ai.themsp.unity.core": "file:../../upm",
+    "ai.themsp.unity.adapter.nova": "file:../../packages/adapter-nova",
     "com.google.external-dependency-manager": "https://github.com/googlesamples/unity-jar-resolver.git?path=upm",
     "com.unity.collab-proxy": "2.12.4",
     "com.unity.feature.development": "1.0.2",

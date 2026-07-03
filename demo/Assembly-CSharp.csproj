@@ -1305,8 +1305,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="MSP.Unity.Runtime.csproj" />
     <ProjectReference Include="MSP.Unity.Editor.csproj" />
+    <ProjectReference Include="MSP.Unity.Adapter.Nova.csproj" />
+    <ProjectReference Include="MSP.Unity.Runtime.csproj" />
+    <ProjectReference Include="MSP.Unity.Adapter.Nova.Editor.csproj" />
   </ItemGroup>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>

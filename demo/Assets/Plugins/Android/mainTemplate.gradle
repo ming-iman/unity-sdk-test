@@ -6,10 +6,9 @@ apply from: '../shared/common.gradle'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 // Android Resolver Dependencies Start
-    implementation 'ai.themsp:google-adapter:4.1.0' // Assets/ExternalDependencyManager/Editor/MSPDependencies.xml:10
-    implementation 'ai.themsp:msp-core:4.1.0' // Assets/ExternalDependencyManager/Editor/MSPDependencies.xml:40
-    implementation 'ai.themsp:nova-adapter:4.1.0' // Assets/ExternalDependencyManager/Editor/MSPDependencies.xml:2
-    implementation 'ai.themsp:prebid-adapter:4.1.0' // Assets/ExternalDependencyManager/Editor/MSPDependencies.xml:29
+    implementation 'ai.themsp:msp-core:4.1.0' // Packages/ai.themsp.unity.core/Editor/Dependencies.xml:10
+    implementation 'ai.themsp:nova-adapter:4.1.0' // Packages/ai.themsp.unity.adapter.nova/Editor/Dependencies.xml:10
+    implementation 'ai.themsp:prebid-adapter:4.1.0' // Packages/ai.themsp.unity.core/Editor/Dependencies.xml:18
 // Android Resolver Dependencies End
 **DEPS**}
 

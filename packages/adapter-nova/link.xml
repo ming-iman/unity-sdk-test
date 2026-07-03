@@ -1,0 +1,6 @@
+<linker>
+  <assembly fullname="MSP.Unity.Adapter.Nova" preserve="all">
+    <type fullname="MSP.Unity.Adapter.Nova.NovaAdapterRegistration" preserve="all" />
+    <type fullname="MSP.Unity.Adapter.Nova.NovaAdapterContributor" preserve="all" />
+  </assembly>
+</linker>

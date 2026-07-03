@@ -1,6 +1,14 @@
 {
   "dependencies": {
-    "ai.themsp.unity": {
+    "ai.themsp.unity.adapter.nova": {
+      "version": "file:../../packages/adapter-nova",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "ai.themsp.unity.core": "0.2.0"
+      }
+    },
+    "ai.themsp.unity.core": {
       "version": "file:../../upm",
       "depth": 0,
       "source": "local",

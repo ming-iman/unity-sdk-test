@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using MSP.Unity.Adapter;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEditor.iOS.Xcode;
@@ -27,7 +29,13 @@ namespace MSP.Unity.Editor
             }
 
             UpdateBundleIdentifier(pathToBuiltProject);
-            UpdateGoogleAdsAppId(pathToBuiltProject);
+            MSPUnityLegacyPackageCleaner.CleanXcodeProject(pathToBuiltProject);
+            MSPUnityAdapterRegistry.EnsureDiscovered();
+            MSPUnityIosAdapterBootstrapEnsurer.EnsureBootstrapSources(pathToBuiltProject);
+            if (MSPUnityAdapterRegistry.RequiresGoogleAdsAppId())
+            {
+                UpdateGoogleAdsAppId(pathToBuiltProject);
+            }
 
             var sdkPath = ResolveMspIosSdkPath();
             if (string.IsNullOrEmpty(sdkPath) || !Directory.Exists(sdkPath))
@@ -51,6 +59,19 @@ namespace MSP.Unity.Editor
             }
 
             RunPodInstall(pathToBuiltProject);
+            MSPUnityLegacyPackageCleaner.CleanXcodeProject(pathToBuiltProject);
+            MSPUnityIosAdapterBootstrapEnsurer.EnsureBootstrapSources(pathToBuiltProject);
+        }
+
+        [PostProcessBuild(2000)]
+        private static void OnPostProcessBuildLateCleanup(BuildTarget target, string pathToBuiltProject)
+        {
+            if (target != BuildTarget.iOS)
+            {
+                return;
+            }
+
+            MSPUnityLegacyPackageCleaner.CleanXcodeProject(pathToBuiltProject);
         }
 
         private static void UpdateBundleIdentifier(string xcodeProjectPath)
@@ -158,144 +179,15 @@ namespace MSP.Unity.Editor
         private static void WritePodfile(string xcodeProjectPath, string mspIosSdkPath)
         {
             var escapedSdkPath = mspIosSdkPath.Replace("\\", "/").Replace("'", "\\'");
-            var podfileContent =
-$@"platform :ios, '15.0'
-use_frameworks! :linkage => :static
-use_modular_headers!
-inhibit_all_warnings!
-
-target 'UnityFramework' do
-  pod 'MSPiOSCore', :path => '{escapedSdkPath}'
-  pod 'NovaCore', :path => '{escapedSdkPath}'
-  pod 'MSPCore', :path => '{escapedSdkPath}'
-  pod 'MSPPrebidAdapter', :path => '{escapedSdkPath}'
-  pod 'MSPGoogleAdapter', :path => '{escapedSdkPath}'
-  pod 'MSPNovaAdapter', :path => '{escapedSdkPath}'
-  pod 'MSPSharedLibraries', :path => '{escapedSdkPath}'
-  pod 'MSPGoogleAdsTypes', :path => '{escapedSdkPath}'
-  pod 'MSPKingfisher', :path => '{escapedSdkPath}/ThirdParty/MSPKingfisher'
-  pod 'MSPSnapKit', :path => '{escapedSdkPath}/ThirdParty/MSPSnapKit'
-  pod 'SwiftProtobuf', '~> 1.28.2'
-  pod 'Google-Mobile-Ads-SDK', '~> 12.0'
-end
-
-target 'Unity-iPhone' do
-  inherit! :search_paths
-end
-
-post_install do |installer|
-  remove_privacy = Proc.new do |resources_phase|
-    next unless resources_phase
-    resources_phase.files.to_a.each do |build_file|
-      ref = build_file.file_ref
-      next unless ref
-      path = ref.path.to_s
-      next unless path.end_with?('PrivacyInfo.xcprivacy')
-      resources_phase.remove_build_file(build_file)
-    end
-  end
-
-  # 1) Pods project aggregate target
-  installer.pods_project.targets.each do |target|
-    next unless target.name == 'Pods-UnityFramework'
-    remove_privacy.call(target.resources_build_phase)
-  end
-
-  # 1.5) Ensure Swift pod modules are installable/importable by downstream pods.
-  # This avoids cases where Swift symbols are invisible even though the pod builds.
-  installer.pods_project.targets.each do |target|
-    target.build_configurations.each do |config|
-      config.build_settings['SWIFT_INSTALL_MODULE_FOR_DEPLOYMENT'] = 'YES'
-      config.build_settings['DEFINES_MODULE'] = 'YES'
-    end
-  end
-
-  # 2) User project target (UnityFramework) where [CP] scripts attach resources
-  installer.aggregate_targets.each do |aggregate_target|
-    aggregate_target.user_project.native_targets.each do |native_target|
-      next unless native_target.name == 'UnityFramework'
-      remove_privacy.call(native_target.resources_build_phase)
-    end
-  end
-
-  # 2.5) Ensure required dynamic frameworks are embedded into app bundle.
-  # Pods static linkage does not always generate an embed script for these frameworks.
-  installer.aggregate_targets.each do |aggregate_target|
-    aggregate_target.user_project.native_targets.each do |native_target|
-      next unless native_target.name == 'Unity-iPhone'
-      phase_name = '[MSP] Embed Runtime Frameworks'
-      phase = native_target.shell_script_build_phases.find do |p|
-        p.name == phase_name
-      end
-      if phase.nil?
-        phase = aggregate_target.user_project.new(Xcodeproj::Project::Object::PBXShellScriptBuildPhase)
-        phase.name = phase_name
-        native_target.build_phases << phase
-      end
-      phase.shell_script = <<~SCRIPT
-        set -e
-        DST=""$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH""
-        mkdir -p ""$DST""
-
-        embed_framework() {{
-          local src=""$1""
-          local name=""$2""
-          if [ -d ""$src"" ]; then
-            rsync -a --delete ""$src"" ""$DST""
-            if [ -n ""$EXPANDED_CODE_SIGN_IDENTITY"" ]; then
-              /usr/bin/codesign --force --sign ""$EXPANDED_CODE_SIGN_IDENTITY"" --preserve-metadata=identifier,entitlements ""$DST/$name""
-            fi
-            echo ""[MSP iOS] Embedded $name""
-          else
-            echo ""[MSP iOS] Skip embedding $name (not found at $src)""
-          fi
-        }}
-
-        embed_framework ""$PODS_XCFRAMEWORKS_BUILD_DIR/NovaCore/OMSDK_Newsbreak1.framework"" ""OMSDK_Newsbreak1.framework""
-        embed_framework ""$PODS_XCFRAMEWORKS_BUILD_DIR/MSPSharedLibraries/PrebidMobile.framework"" ""PrebidMobile.framework""
-      SCRIPT
-    end
-  end
-
-  # 3) Hard fallback: dedupe duplicate PrivacyInfo.xcprivacy lines
-  # in CocoaPods generated resources script. Also remove all privacy entries
-  # so Pods do not produce UnityFramework.framework/PrivacyInfo.xcprivacy.
-  resources_script = File.join(
-    installer.sandbox.root,
-    'Target Support Files',
-    'Pods-UnityFramework',
-    'Pods-UnityFramework-resources.sh'
-  )
-  if File.exist?(resources_script)
-    lines = File.readlines(resources_script)
-    filtered = lines.reject do |line|
-      line.include?('install_resource') && line.include?('PrivacyInfo.xcprivacy')
-    end
-    File.write(resources_script, filtered.join)
-  end
-
-  # 4) Remove PrivacyInfo.xcprivacy input/output paths from [CP] Copy Pods Resources
-  # in user project to avoid duplicate ""Multiple commands produce"" with Unity's own privacy file.
-  installer.aggregate_targets.each do |aggregate_target|
-    aggregate_target.user_project.native_targets.each do |native_target|
-      next unless native_target.name == 'UnityFramework'
-      native_target.shell_script_build_phases.each do |phase|
-        next unless phase.name == '[CP] Copy Pods Resources'
-        if phase.input_paths
-          phase.input_paths = phase.input_paths.reject {{ |p| p.to_s.include?('PrivacyInfo.xcprivacy') }}
-        end
-        if phase.output_paths
-          phase.output_paths = phase.output_paths.reject {{ |p| p.to_s.include?('PrivacyInfo.xcprivacy') }}
-        end
-      end
-    end
-  end
-end
-";
+            var podfileContent = MSPUnityIosPodfileBuilder.Build(escapedSdkPath);
+            var adapters = MSPUnityAdapterRegistry.GetAll();
+            var adapterSummary = adapters.Count == 0
+                ? "core-only"
+                : string.Join(", ", adapters.Select(adapter => adapter.AdapterId));
 
             var podfilePath = Path.Combine(xcodeProjectPath, "Podfile");
             File.WriteAllText(podfilePath, podfileContent);
-            UnityEngine.Debug.Log($"[MSP iOS] Podfile generated: {podfilePath}");
+            UnityEngine.Debug.Log($"[MSP iOS] Podfile generated ({adapterSummary}): {podfilePath}");
         }
 
         private static void RunPodInstall(string xcodeProjectPath)

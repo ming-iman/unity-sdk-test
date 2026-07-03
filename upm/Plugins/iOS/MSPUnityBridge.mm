@@ -3,6 +3,7 @@
 @interface MSPUnityEntry : NSObject
 + (NSString *)sdkVersion;
 + (void)setLogLevel:(int32_t)level;
++ (BOOL)activateAdapterWithAdapterId:(NSString *)adapterId bootstrapClassName:(NSString *)bootstrapClassName;
 + (BOOL)initializeWithPrebidApiKey:(NSString *)prebidApiKey orgId:(int32_t)orgId appId:(int32_t)appId isInTestMode:(BOOL)isInTestMode;
 + (BOOL)loadAdWithPlacementId:(NSString *)placementId requestToken:(NSString *)requestToken adNetwork:(NSString *)adNetwork;
 + (BOOL)hasAdWithPlacementId:(NSString *)placementId requestToken:(NSString *)requestToken;
@@ -16,6 +17,12 @@ extern "C" const char* msp_unity_get_version() {
 
 extern "C" void msp_unity_set_log_level(int level) {
     [MSPUnityEntry setLogLevel:(int32_t)level];
+}
+
+extern "C" void msp_unity_activate_adapter(const char* adapterId, const char* bootstrapClassName) {
+    NSString *adapter = adapterId ? [NSString stringWithUTF8String:adapterId] : @"";
+    NSString *className = bootstrapClassName ? [NSString stringWithUTF8String:bootstrapClassName] : @"";
+    [MSPUnityEntry activateAdapterWithAdapterId:adapter bootstrapClassName:className];
 }
 
 extern "C" void msp_unity_initialize(const char* prebidApiKey, int orgId, int appId, bool isInTestMode) {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using MSP.Unity.Adapter;
 
 namespace MSP.Unity.Internal
 {
@@ -14,6 +15,9 @@ namespace MSP.Unity.Internal
 
         [DllImport("__Internal")]
         private static extern void msp_unity_set_log_level(int level);
+
+        [DllImport("__Internal")]
+        private static extern void msp_unity_activate_adapter(string adapterId, string bootstrapClassName);
 
         [DllImport("__Internal")]
         private static extern void msp_unity_initialize(string prebidApiKey, int orgId, int appId, bool isInTestMode);
@@ -53,6 +57,7 @@ namespace MSP.Unity.Internal
         {
             MSPUnityListener.SetPendingInitCallback(onComplete);
 #if UNITY_IOS && !UNITY_EDITOR
+            ActivateIosAdapters();
             msp_unity_initialize(initParams.PrebidApiKey, initParams.OrgId, initParams.AppId, initParams.IsInTestMode);
 #else
             onComplete?.Invoke(true, "MSP iOS init called.");
@@ -101,6 +106,24 @@ namespace MSP.Unity.Internal
             msp_unity_show_ad(placementId, nativeAdToken);
 #endif
         }
+
+#if UNITY_IOS && !UNITY_EDITOR
+        private static void ActivateIosAdapters()
+        {
+            MSPUnityAdapterRegistry.EnsureDiscovered();
+
+            foreach (var adapter in MSPUnityAdapterRegistry.GetAll())
+            {
+                msp_unity_activate_adapter(adapter.AdapterId, adapter.IosBootstrapClassName ?? string.Empty);
+            }
+
+            if (MSPUnityAdapterRegistry.GetAll().Count == 0 &&
+                MSPUnityOptionalAdapterLoader.IsAssemblyLoaded("MSP.Unity.Adapter.Nova"))
+            {
+                msp_unity_activate_adapter("nova", "MSPUnityNovaBootstrap");
+            }
+        }
+#endif
 
         private static string ResolveAdNetwork(MSPAdRequest adRequest)
         {

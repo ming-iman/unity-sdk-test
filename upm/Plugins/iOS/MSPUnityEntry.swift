@@ -1,8 +1,8 @@
+import Darwin
 import Foundation
 import MSPCore
-import MSPGoogleAdapter
 import MSPiOSCore
-import MSPNovaAdapter
+import ObjectiveC
 import UIKit
 
 @_silgen_name("UnitySendMessage")
@@ -20,6 +20,77 @@ public final class MSPUnityEntry: NSObject {
     fileprivate static var adLoaders: [String: MSPAdLoader] = [:]
     fileprivate static var loadedAds: [String: MSPAd] = [:]
     fileprivate static var adListeners: [String: UnityAdListener] = [:]
+    private static var registeredManagers: [AdNetworkManager] = []
+    private static let linkedOptionalAdapterIds = ["nova"]
+
+    public static func registerManager(_ manager: AdNetworkManager) {
+        registeredManagers.append(manager)
+    }
+
+    private static func activateLinkedOptionalAdaptersIfNeeded() {
+        guard registeredManagers.isEmpty else {
+            return
+        }
+
+        for adapterId in linkedOptionalAdapterIds {
+            if activateAdapterViaCdecl(adapterId: adapterId) {
+                MSPLogger.shared.info(message: "[MSPUnity] Linked optional adapter '\(adapterId)' activated during init")
+            }
+        }
+    }
+
+    @discardableResult
+    public static func activateAdapter(adapterId: String, bootstrapClassName: String) -> Bool {
+        if activateAdapterViaCdecl(adapterId: adapterId) {
+            MSPLogger.shared.info(message: "[MSPUnity] Activated adapter '\(adapterId)' via native symbol")
+            return true
+        }
+
+        if activateAdapterBootstrap(bootstrapClassName) {
+            MSPLogger.shared.info(message: "[MSPUnity] Activated adapter '\(adapterId)' via bootstrap class")
+            return true
+        }
+
+        MSPLogger.shared.fault(message: "[MSPUnity] Failed to activate adapter '\(adapterId)'")
+        return false
+    }
+
+    @discardableResult
+    private static func activateAdapterViaCdecl(adapterId: String) -> Bool {
+        guard !adapterId.isEmpty else {
+            return false
+        }
+
+        let symbol = "msp_unity_register_adapter_\(adapterId)"
+        guard let sym = dlsym(UnsafeMutableRawPointer(bitPattern: -2), symbol) else {
+            return false
+        }
+
+        typealias RegisterFn = @convention(c) () -> Void
+        unsafeBitCast(sym, to: RegisterFn.self)()
+        return true
+    }
+
+    @discardableResult
+    private static func activateAdapterBootstrap(_ bootstrapClassName: String) -> Bool {
+        guard !bootstrapClassName.isEmpty,
+              let cls = NSClassFromString(bootstrapClassName) as? NSObject.Type
+        else {
+            return false
+        }
+
+        let selector = NSSelectorFromString("activate")
+        guard cls.responds(to: selector),
+              let method = class_getClassMethod(cls, selector)
+        else {
+            return false
+        }
+
+        typealias ActivateIMP = @convention(c) (AnyClass, Selector) -> Void
+        let imp = method_getImplementation(method)
+        unsafeBitCast(imp, to: ActivateIMP.self)(cls, selector)
+        return true
+    }
 
     public static func sdkVersion() -> String {
         MSP.shared.version
@@ -37,10 +108,10 @@ public final class MSPUnityEntry: NSObject {
         case MSPLogLevel.WARN:
             mappedLevel = MSPLogger.ERROR
         case MSPLogLevel.ERROR:
-            mappedLevel = MSPLogger.ERROR
+            mappedLevel = MSPLogger.FAULT
         case MSPLogLevel.ASSERT:
-            mappedLevel = MSPLogger.ERROR
-        case MSPLogLevel.NONE:
+            mappedLevel = MSPLogger.FAULT
+        case Int.max:
             mappedLevel = MSPLogger.NONE
         default:
             mappedLevel = MSPLogger.INFO
@@ -56,7 +127,9 @@ public final class MSPUnityEntry: NSObject {
             appId: Int64(appId)
         )
 
-        let managers: [AdNetworkManager] = [GoogleManager(), NovaManager()]
+        activateLinkedOptionalAdaptersIfNeeded()
+        let managers = registeredManagers
+        MSPLogger.shared.info(message: "[MSPUnity] Initializing MSP with \(managers.count) ad network manager(s)")
         MSP.shared.initMSP(initParams: params, sdkInitListener: nil, adNetworkManagers: managers)
 
         sendUnityMessage(
@@ -180,12 +253,12 @@ public final class MSPUnityEntry: NSObject {
 }
 
 private enum MSPLogLevel {
-    static let DEBUG = 0
-    static let INFO = 1
-    static let WARN = 2
-    static let ERROR = 3
-    static let ASSERT = 4
-    static let NONE = 5
+    static let VERBOSE = 2
+    static let DEBUG = 3
+    static let INFO = 4
+    static let WARN = 5
+    static let ERROR = 6
+    static let ASSERT = 7
 }
 
 private final class UnityAdListener: NSObject, AdListener {

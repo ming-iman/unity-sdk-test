@@ -1,9 +1,9 @@
 {
-  "name": "ai.themsp.unity",
-  "displayName": "MSP Unity SDK",
-  "version": "0.1.0",
+  "name": "ai.themsp.unity.core",
+  "displayName": "MSP Unity SDK Core",
+  "version": "0.2.0",
   "unity": "2021.3",
-  "description": "MSP Unity SDK MVP with Interstitial support.",
+  "description": "MSP Unity SDK core package with Interstitial support. Install optional adapter packages separately.",
   "keywords": [
     "msp",
     "ads",

@@ -52,14 +52,29 @@
     <Analyzer Include="/Applications/Unity/Hub/Editor/6000.5.1f1/Unity.app/Contents/Resources/Scripting/BCLExtensions/TargetingPacks/netstandard2.1/analyzers/dotnet/roslyn4.0/cs/System.Text.Json.SourceGeneration.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Editor/MSPUnityLegacyPackageCleaner.cs">
+      <Link>Editor/MSPUnityLegacyPackageCleaner.cs</Link>
+    </Compile>
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Editor/MSPUnityAdapterEditorBootstrap.cs">
+      <Link>Editor/MSPUnityAdapterEditorBootstrap.cs</Link>
+    </Compile>
     <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Editor/MSPSettingsProvider.cs">
       <Link>Editor/MSPSettingsProvider.cs</Link>
+    </Compile>
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Editor/MSPUnityIosAdapterBootstrapEnsurer.cs">
+      <Link>Editor/MSPUnityIosAdapterBootstrapEnsurer.cs</Link>
     </Compile>
     <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Editor/MSPIOSPostProcess.cs">
       <Link>Editor/MSPIOSPostProcess.cs</Link>
     </Compile>
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Editor/MSPUnityIosPodfileBuilder.cs">
+      <Link>Editor/MSPUnityIosPodfileBuilder.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Editor/Dependencies.xml">
+      <Link>Editor/Dependencies.xml</Link>
+    </None>
     <None Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Editor/MSP.Unity.Editor.asmdef">
       <Link>Editor/MSP.Unity.Editor.asmdef</Link>
     </None>

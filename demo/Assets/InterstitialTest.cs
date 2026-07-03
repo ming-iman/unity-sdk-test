@@ -29,6 +29,7 @@ public class InterstitialTest : MonoBehaviour
 
     private void Awake()
     {
+        MSP.Unity.MSP.SetLogLevel(MSPLogLevel.VERBOSE);
 #if UNITY_IOS
         // Force iOS runtime values to avoid stale serialized Scene data.
         placementId = "demo-ios-launch-fullscreen";
@@ -39,7 +40,6 @@ public class InterstitialTest : MonoBehaviour
     void Start()
     {
         Debug.Log("MSP start to init...");
-        MSP.Unity.MSP.SetLogLevel(MSPLogLevel.VERBOSE);
         MSP.Unity.MSP.Initialize(new MSPInitializationParameters
         {
             PrebidApiKey = DemoApiKey,

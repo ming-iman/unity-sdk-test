@@ -6,9 +6,13 @@ All Unity-related MSP code lives under this directory.
 
 ```
 msp-unity-sdk/
-├── upm/              # Unity Package Manager plugin (ai.themsp.unity)
-├── android-bridge/   # Gradle project → msp-unity-bridge-release.aar
-├── demo/             # Unity demo project (Android Interstitial test)
+├── upm/                      # ai.themsp.unity.core (required)
+├── packages/
+│   └── adapter-nova/         # ai.themsp.unity.adapter.nova (optional)
+├── android-bridge/           # Gradle project → msp-unity-bridge-release.aar
+├── demo/                     # Unity demo project (core + nova)
+├── docs/                     # publishing/integration docs
+├── tools/release/            # release validation scripts
 └── README.md
 ```
 
@@ -18,11 +22,14 @@ msp-unity-sdk/
 
 Open `demo/` as a Unity project (Unity 6000.x tested).
 
-The demo references the local package via `Packages/manifest.json`:
+The demo references local packages via `Packages/manifest.json`:
 
 ```json
-"ai.themsp.unity": "file:../../upm"
+"ai.themsp.unity.core": "file:../../upm",
+"ai.themsp.unity.adapter.nova": "file:../../packages/adapter-nova"
 ```
+
+See `docs/publishing-layout.md` for external release layout.
 
 ### 2. Build Android bridge AAR
 
@@ -59,4 +66,6 @@ Build steps:
 
 ## UPM package
 
-The publishable Unity plugin is in `upm/`. See `upm/README.md` for API scope and status.
+The publishable Unity core plugin is in `upm/` (`ai.themsp.unity.core`).
+Optional adapters live under `packages/` (Nova first).
+See `docs/publishing-layout.md` and `upm/README.md` for API scope and status.

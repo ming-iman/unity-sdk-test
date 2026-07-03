@@ -52,20 +52,20 @@
     <Analyzer Include="/Applications/Unity/Hub/Editor/6000.5.1f1/Unity.app/Contents/Resources/Scripting/BCLExtensions/TargetingPacks/netstandard2.1/analyzers/dotnet/roslyn4.0/cs/System.Text.Json.SourceGeneration.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/Internal/NativeBridgeMessages.cs">
-      <Link>Runtime/Internal/NativeBridgeMessages.cs</Link>
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/Internal/MSPClientFactory.cs">
+      <Link>Runtime/Internal/MSPClientFactory.cs</Link>
+    </Compile>
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/MSPAdLoader.cs">
+      <Link>Runtime/MSPAdLoader.cs</Link>
     </Compile>
     <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/MSPAd.cs">
       <Link>Runtime/MSPAd.cs</Link>
     </Compile>
-    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/MSP.cs">
-      <Link>Runtime/MSP.cs</Link>
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/Adapter/MSPUnityAdapterDefinition.cs">
+      <Link>Runtime/Adapter/MSPUnityAdapterDefinition.cs</Link>
     </Compile>
-    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/Internal/IMSPClient.cs">
-      <Link>Runtime/Internal/IMSPClient.cs</Link>
-    </Compile>
-    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/MSPInterstitialAd.cs">
-      <Link>Runtime/MSPInterstitialAd.cs</Link>
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/Adapter/MSPUnityAdapterRegistry.cs">
+      <Link>Runtime/Adapter/MSPUnityAdapterRegistry.cs</Link>
     </Compile>
     <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/MSPInitializationParameters.cs">
       <Link>Runtime/MSPInitializationParameters.cs</Link>
@@ -73,29 +73,47 @@
     <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/Internal/AndroidMSPClient.cs">
       <Link>Runtime/Internal/AndroidMSPClient.cs</Link>
     </Compile>
-    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/Internal/EditorMockMSPClient.cs">
-      <Link>Runtime/Internal/EditorMockMSPClient.cs</Link>
-    </Compile>
-    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/Internal/MSPUnityListener.cs">
-      <Link>Runtime/Internal/MSPUnityListener.cs</Link>
-    </Compile>
-    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/MSPAdRequest.cs">
-      <Link>Runtime/MSPAdRequest.cs</Link>
-    </Compile>
-    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/MSPAdLoader.cs">
-      <Link>Runtime/MSPAdLoader.cs</Link>
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/Adapter/MSPUnityIosPod.cs">
+      <Link>Runtime/Adapter/MSPUnityIosPod.cs</Link>
     </Compile>
     <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/MSPAdListener.cs">
       <Link>Runtime/MSPAdListener.cs</Link>
     </Compile>
-    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/Internal/MSPClientFactory.cs">
-      <Link>Runtime/Internal/MSPClientFactory.cs</Link>
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/Adapter/MSPUnityOptionalAdapterLoader.cs">
+      <Link>Runtime/Adapter/MSPUnityOptionalAdapterLoader.cs</Link>
+    </Compile>
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/Internal/IMSPClient.cs">
+      <Link>Runtime/Internal/IMSPClient.cs</Link>
+    </Compile>
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/Internal/NativeBridgeMessages.cs">
+      <Link>Runtime/Internal/NativeBridgeMessages.cs</Link>
+    </Compile>
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/Internal/MSPUnityListener.cs">
+      <Link>Runtime/Internal/MSPUnityListener.cs</Link>
+    </Compile>
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/Adapter/MSPUnityAdapterDiscovery.cs">
+      <Link>Runtime/Adapter/MSPUnityAdapterDiscovery.cs</Link>
+    </Compile>
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/MSPLogLevel.cs">
+      <Link>Runtime/MSPLogLevel.cs</Link>
+    </Compile>
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/MSP.cs">
+      <Link>Runtime/MSP.cs</Link>
+    </Compile>
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/Adapter/IMSPUnityAdapterContributor.cs">
+      <Link>Runtime/Adapter/IMSPUnityAdapterContributor.cs</Link>
+    </Compile>
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/MSPInterstitialAd.cs">
+      <Link>Runtime/MSPInterstitialAd.cs</Link>
     </Compile>
     <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/Internal/IOSMSPClient.cs">
       <Link>Runtime/Internal/IOSMSPClient.cs</Link>
     </Compile>
-    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/MSPLogLevel.cs">
-      <Link>Runtime/MSPLogLevel.cs</Link>
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/MSPAdRequest.cs">
+      <Link>Runtime/MSPAdRequest.cs</Link>
+    </Compile>
+    <Compile Include="/Users/macrofox/NewsBreak/msp-unity-sdk/upm/Runtime/Internal/EditorMockMSPClient.cs">
+      <Link>Runtime/Internal/EditorMockMSPClient.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
