@@ -35,8 +35,8 @@ android {
 }
 
 dependencies {
-    implementation "ai.themsp:prebid-adapter:4.1.0"
-    implementation "ai.themsp:msp-core:4.1.0"
+    implementation "ai.themsp:prebid-adapter:4.0.0"
+    implementation "ai.themsp:msp-core:4.0.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:2.2.0"
 
     // UnityPlayer / UnitySendMessage compile stubs from local Unity install.

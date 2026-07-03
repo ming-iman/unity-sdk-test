@@ -1,8 +1,8 @@
 <dependencies>
   <packages>
-    <package>ai.themsp:msp-core:4.1.0</package>
-    <package>ai.themsp:nova-adapter:4.1.0</package>
-    <package>ai.themsp:prebid-adapter:4.1.0</package>
+    <package>ai.themsp:msp-core:4.0.0</package>
+    <package>ai.themsp:nova-adapter:4.0.0</package>
+    <package>ai.themsp:prebid-adapter:4.0.0</package>
   </packages>
   <files />
   <settings>

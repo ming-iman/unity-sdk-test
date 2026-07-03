@@ -42,16 +42,19 @@ This builds the AAR and copies it to `demo/Assets/Plugins/Android/`.
 
 ### 3. Android build
 
-See `demo/Assets/Plugins/Android/README_MSP_SETUP.md` for Gradle / Artifactory / AdMob setup.
+Android native deps resolve from **Maven Central** (`ai.themsp:*`).
 
-### 4. iOS build (Pod-based)
+See `demo/Assets/Plugins/Android/README_MSP_SETUP.md` for Gradle / AdMob setup.
 
-The Unity iOS postprocess now generates a `Podfile` in exported Xcode projects and runs
-`pod install` automatically.
+### 4. iOS build (CocoaPods)
 
-- Default MSP iOS SDK path: `../msp-ios-sdk` (sibling of `msp-unity-sdk`)
-- Override path: set env `MSP_IOS_SDK_PATH=/absolute/path/to/msp-ios-sdk`
+The Unity iOS postprocess generates a `Podfile` from enabled adapters and runs
+`pod install` automatically. By default it uses **CocoaPods trunk** (no local `msp-ios-sdk` required).
+
+- Default iOS pods: `MSPCore`, `MSPNovaAdapter` at version `4.0.9`
 - Skip auto pod install: set env `MSP_UNITY_SKIP_POD_INSTALL=1`
+- Local SDK dev override: set env `MSP_UNITY_USE_LOCAL_IOS_SDK=1` (optional `MSP_IOS_SDK_PATH` for non-sibling `msp-ios-sdk`)
+- `MSP_IOS_SDK_PATH` alone only affects CocoaPods Gemfile lookup during `pod install`
 
 Build steps:
 

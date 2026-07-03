@@ -10,17 +10,14 @@ namespace MSP.Unity.Adapter
 
         public static IReadOnlyList<MSPUnityIosPod> CoreIosPodsSource { get; } = new[]
         {
-            new MSPUnityIosPod("MSPiOSCore", MSPUnityIosPodSource.SdkRoot),
-            new MSPUnityIosPod("MSPCore", MSPUnityIosPodSource.SdkRoot),
-            new MSPUnityIosPod("MSPPrebidAdapter", MSPUnityIosPodSource.SdkRoot),
-            new MSPUnityIosPod("MSPSharedLibraries", MSPUnityIosPodSource.SdkRoot),
-            new MSPUnityIosPod("SwiftProtobuf", MSPUnityIosPodSource.Version, "~> 1.28.2")
+            new MSPUnityIosPod("MSPCore", MSPUnityIosPodSource.Version, MSPUnityNativeVersions.IosPodVersion),
+            new MSPUnityIosPod("SwiftProtobuf", MSPUnityIosPodSource.Version, MSPUnityNativeVersions.SwiftProtobufPodVersion)
         };
 
         public static IReadOnlyList<string> CoreAndroidMavenSpecs { get; } = new[]
         {
-            "ai.themsp:msp-core:4.1.0",
-            "ai.themsp:prebid-adapter:4.1.0"
+            $"ai.themsp:msp-core:{MSPUnityNativeVersions.AndroidMavenVersion}",
+            $"ai.themsp:prebid-adapter:{MSPUnityNativeVersions.AndroidMavenVersion}"
         };
 
         public static void Register(MSPUnityAdapterDefinition definition)

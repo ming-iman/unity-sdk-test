@@ -19,18 +19,6 @@ dependencyResolutionManagement {
         mavenCentral()
 // Android Resolver Repos Start
         def unityProjectPath = $/file:///**DIR_UNITYPROJECT**/$.replace("\\", "/")
-        maven {
-            url "https://artifactory.nb-sandbox.com/artifactory/libs-release-local" // Packages/ai.themsp.unity.adapter.nova/Editor/Dependencies.xml:10, Packages/ai.themsp.unity.core/Editor/Dependencies.xml:10, Packages/ai.themsp.unity.core/Editor/Dependencies.xml:18
-        }
-        maven {
-            url "https://artifactory.nb-sandbox.com/artifactory/libs-snapshot-local" // Packages/ai.themsp.unity.adapter.nova/Editor/Dependencies.xml:10, Packages/ai.themsp.unity.core/Editor/Dependencies.xml:10, Packages/ai.themsp.unity.core/Editor/Dependencies.xml:18
-        }
-        maven {
-            url "https://maven.google.com" // Packages/ai.themsp.unity.adapter.nova/Editor/Dependencies.xml:10, Packages/ai.themsp.unity.core/Editor/Dependencies.xml:10, Packages/ai.themsp.unity.core/Editor/Dependencies.xml:18
-        }
-        maven {
-            url "https://repo1.maven.org/maven2" // Packages/ai.themsp.unity.adapter.nova/Editor/Dependencies.xml:10, Packages/ai.themsp.unity.core/Editor/Dependencies.xml:10, Packages/ai.themsp.unity.core/Editor/Dependencies.xml:18
-        }
         mavenLocal()
 // Android Resolver Repos End
         flatDir {

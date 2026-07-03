@@ -12,8 +12,8 @@ To run real ads on Android device, you still need runtime dependencies required 
 
 Dependencies are declared by UPM packages (not in this demo `Assets` folder):
 
-- Core (`ai.themsp.unity.core`): `msp-core`, `prebid-adapter`
-- Nova adapter (`ai.themsp.unity.adapter.nova`): `nova-adapter`
+- Core (`ai.themsp.unity.core`): `msp-core`, `prebid-adapter` from Maven Central
+- Nova adapter (`ai.themsp.unity.adapter.nova`): `nova-adapter` from Maven Central
 
 After changing packages, run **Assets > External Dependency Manager > Android Resolver > Force Resolve**.
 
@@ -23,14 +23,7 @@ Use EDM4U and enable **Custom Gradle Settings Template** (`Assets/Plugins/Androi
 
 Dependency XML files are provided by installed MSP UPM packages under `Packages/`.
 
-The private Artifactory repos require credentials. `settingsTemplate.gradle` includes the
-same `services` / `services` credentials used by `msp-android/settings.gradle`.
-
-If Gradle fails with `401 Unauthorized` from `artifactory.nb-sandbox.com`, confirm
-`settingsTemplate.gradle` has the `credentials { }` block on both Artifactory `maven` entries.
-
-Alternative for offline builds: build local AARs from `msp-android` (`assembleLocalRelease`)
-and copy them here, then remove the Maven `implementation` lines from `mainTemplate.gradle`.
+External users only need Maven Central and Google Maven (no Artifactory credentials).
 
 If app crashes with `ClassNotFoundException` or `NoClassDefFoundError`, a runtime dependency is missing.
 

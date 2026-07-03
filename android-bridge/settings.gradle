@@ -11,20 +11,6 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven {
-            url = uri("https://artifactory.nb-sandbox.com/artifactory/libs-release-local")
-            credentials {
-                username = "services"
-                password = "services"
-            }
-        }
-        maven {
-            url = uri("https://artifactory.nb-sandbox.com/artifactory/libs-snapshot-local")
-            credentials {
-                username = "services"
-                password = "services"
-            }
-        }
         maven { url "https://android-sdk.is.com/" }
         maven { url "https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea" }
         maven { url "https://repo.pubmatic.com/artifactory/public-repos" }

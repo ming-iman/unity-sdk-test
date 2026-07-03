@@ -14,6 +14,7 @@ namespace MSP.Unity.Editor
     internal static class MSPIOSPostProcess
     {
         private const string EnvMspIosSdkPath = "MSP_IOS_SDK_PATH";
+        private const string EnvUseLocalIosSdk = "MSP_UNITY_USE_LOCAL_IOS_SDK";
         private const string EnvSkipPodInstall = "MSP_UNITY_SKIP_POD_INSTALL";
         private const string EnvMspIosBundleId = "MSP_UNITY_IOS_BUNDLE_ID";
         private const string DefaultMspIosBundleId = "MSPDemoApp.MSPDemoApp";
@@ -37,16 +38,7 @@ namespace MSP.Unity.Editor
                 UpdateGoogleAdsAppId(pathToBuiltProject);
             }
 
-            var sdkPath = ResolveMspIosSdkPath();
-            if (string.IsNullOrEmpty(sdkPath) || !Directory.Exists(sdkPath))
-            {
-                UnityEngine.Debug.LogWarning(
-                    $"[MSP iOS] Skip Podfile generation. MSP iOS SDK path not found. " +
-                    $"Set {EnvMspIosSdkPath} to your msp-ios-sdk directory.");
-                return;
-            }
-
-            WritePodfile(pathToBuiltProject, sdkPath);
+            WritePodfile(pathToBuiltProject);
 
             var skipPodInstall = string.Equals(
                 Environment.GetEnvironmentVariable(EnvSkipPodInstall),
@@ -59,6 +51,7 @@ namespace MSP.Unity.Editor
             }
 
             RunPodInstall(pathToBuiltProject);
+            MSPUnityIosPodsEmbedCleaner.StripBlockedFrameworks(pathToBuiltProject);
             MSPUnityLegacyPackageCleaner.CleanXcodeProject(pathToBuiltProject);
             MSPUnityIosAdapterBootstrapEnsurer.EnsureBootstrapSources(pathToBuiltProject);
         }
@@ -176,18 +169,30 @@ namespace MSP.Unity.Editor
             return Path.Combine(newsBreakRoot, "msp-ios-sdk");
         }
 
-        private static void WritePodfile(string xcodeProjectPath, string mspIosSdkPath)
+        private static void WritePodfile(string xcodeProjectPath)
         {
-            var escapedSdkPath = mspIosSdkPath.Replace("\\", "/").Replace("'", "\\'");
-            var podfileContent = MSPUnityIosPodfileBuilder.Build(escapedSdkPath);
+            var podfileContent = MSPUnityIosPodfileBuilder.Build();
             var adapters = MSPUnityAdapterRegistry.GetAll();
             var adapterSummary = adapters.Count == 0
                 ? "core-only"
                 : string.Join(", ", adapters.Select(adapter => adapter.AdapterId));
+            var sourceMode = UsesLocalIosSdkPods()
+                ? "local-path"
+                : $"cocoapods-trunk ({MSPUnityNativeVersions.IosPodVersion})";
 
             var podfilePath = Path.Combine(xcodeProjectPath, "Podfile");
             File.WriteAllText(podfilePath, podfileContent);
-            UnityEngine.Debug.Log($"[MSP iOS] Podfile generated ({adapterSummary}): {podfilePath}");
+            UnityEngine.Debug.Log($"[MSP iOS] Podfile generated ({adapterSummary}, {sourceMode}): {podfilePath}");
+        }
+
+        private static bool UsesLocalIosSdkPods()
+        {
+            if (!string.Equals(Environment.GetEnvironmentVariable(EnvUseLocalIosSdk), "1", StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            return !string.IsNullOrEmpty(ResolveMspIosSdkPath());
         }
 
         private static void RunPodInstall(string xcodeProjectPath)

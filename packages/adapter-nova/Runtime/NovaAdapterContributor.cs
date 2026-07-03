@@ -15,14 +15,11 @@ namespace MSP.Unity.Adapter.Nova
                 displayName: "Nova",
                 androidMavenSpecs: new[]
                 {
-                    "ai.themsp:nova-adapter:4.1.0"
+                    $"ai.themsp:nova-adapter:{MSPUnityNativeVersions.AndroidMavenVersion}"
                 },
                 iosPods: new[]
                 {
-                    new MSPUnityIosPod("MSPNovaAdapter", MSPUnityIosPodSource.SdkRoot),
-                    new MSPUnityIosPod("NovaCore", MSPUnityIosPodSource.SdkRoot),
-                    new MSPUnityIosPod("MSPKingfisher", MSPUnityIosPodSource.SdkThirdParty, relativePath: "ThirdParty/MSPKingfisher"),
-                    new MSPUnityIosPod("MSPSnapKit", MSPUnityIosPodSource.SdkThirdParty, relativePath: "ThirdParty/MSPSnapKit")
+                    new MSPUnityIosPod("MSPNovaAdapter", MSPUnityIosPodSource.Version, MSPUnityNativeVersions.IosPodVersion)
                 },
                 iosBootstrapClassName: IosBootstrapClass,
                 requiresGoogleAdsAppId: false);
