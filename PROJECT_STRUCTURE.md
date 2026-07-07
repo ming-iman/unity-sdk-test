@@ -28,6 +28,7 @@ This file explains the purpose of subdirectories inside `./msp-unity-sdk` (the U
 
 - `tools/release`: Release and validation scripts for packaging/publishing.
 - `tools/*`: Internal utility scripts used in local development and CI.
+- `build/`: Generated release artifacts (`.tgz`); gitignored.
 
 - `upm/Runtime`: Main runtime APIs used by Unity apps at run time.
 - `upm/Editor`: Unity editor automation (post-process, dependency generation, iOS/Android integration).

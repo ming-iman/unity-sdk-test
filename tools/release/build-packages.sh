@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+BUILD_DIR="$ROOT/build"
 
 echo "[MSP Unity] Building Android bridge AAR into upm/Plugins/Android..."
 (
@@ -12,21 +13,20 @@ echo "[MSP Unity] Building Android bridge AAR into upm/Plugins/Android..."
 echo "[MSP Unity] Validating publishable package layout..."
 "$ROOT/tools/release/validate-packages.sh"
 
+mkdir -p "$BUILD_DIR"
+rm -f "$BUILD_DIR"/ai.themsp.unity.core-*.tgz "$BUILD_DIR"/ai.themsp.unity.adapter.nova-*.tgz
+
 echo "[MSP Unity] Packing core package..."
 (
   cd "$ROOT/upm"
-  rm -f ai.themsp.unity.core-*.tgz
-  npm pack
+  npm pack --pack-destination "$BUILD_DIR"
 )
 
 echo "[MSP Unity] Packing Nova adapter package..."
 (
   cd "$ROOT/packages/adapter-nova"
-  rm -f ai.themsp.unity.adapter.nova-*.tgz
-  npm pack
+  npm pack --pack-destination "$BUILD_DIR"
 )
 
 echo "[MSP Unity] Release artifacts:"
-ls -1 \
-  "$ROOT/upm"/ai.themsp.unity.core-*.tgz \
-  "$ROOT/packages/adapter-nova"/ai.themsp.unity.adapter.nova-*.tgz
+ls -1 "$BUILD_DIR"/ai.themsp.unity.core-*.tgz "$BUILD_DIR"/ai.themsp.unity.adapter.nova-*.tgz

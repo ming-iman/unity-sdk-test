@@ -47,6 +47,7 @@ For release packaging (copies AAR into the publishable core package):
 ```
 
 The release AAR is shipped inside `upm/Plugins/Android/msp-unity-bridge-release.aar`.
+Packaged `.tgz` files are written to `build/` via `tools/release/build-packages.sh`.
 
 ### 3. Android build
 

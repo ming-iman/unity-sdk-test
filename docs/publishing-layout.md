@@ -103,7 +103,7 @@ Add new packages under `packages/adapter-<name>/` using the same pattern:
 
 1. Verify public native versions (`MSPUnityNativeVersions`) match Maven Central / CocoaPods trunk
 2. Bump versions in `upm/package.json` and adapter `package.json`
-3. Run `tools/release/build-packages.sh` (builds Android bridge AAR, validates, packs tgz files)
+3. Run `tools/release/build-packages.sh` (builds Android bridge AAR, validates, packs tgz files into `build/`)
 4. Tag repo (`v0.0.1-rc.0`)
 5. Validate in a clean Unity project:
    - core only (should build, but no nova ads)
