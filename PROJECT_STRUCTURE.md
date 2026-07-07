@@ -32,6 +32,8 @@ This file explains the purpose of subdirectories inside `./msp-unity-sdk` (the U
 - `upm/Runtime`: Main runtime APIs used by Unity apps at run time.
 - `upm/Editor`: Unity editor automation (post-process, dependency generation, iOS/Android integration).
 - `upm/Plugins`: Native plugin bridge sources and platform-specific interop code.
+  - `upm/Plugins/Android`: Shipped `msp-unity-bridge-release.aar` for Unity ↔ Android Java bridge.
+  - `upm/Plugins/iOS`: Swift/ObjC bridge (`MSPUnityEntry`, `MSPUnityBridge.mm`).
 
 ## Notes
 

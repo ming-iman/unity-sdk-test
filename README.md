@@ -33,12 +33,20 @@ See `docs/publishing-layout.md` for external release layout.
 
 ### 2. Build Android bridge AAR
 
+For monorepo demo development:
+
 ```bash
 cd android-bridge
 make install
 ```
 
-This builds the AAR and copies it to `demo/Assets/Plugins/Android/`.
+For release packaging (copies AAR into the publishable core package):
+
+```bash
+./tools/release/build-packages.sh
+```
+
+The release AAR is shipped inside `upm/Plugins/Android/msp-unity-bridge-release.aar`.
 
 ### 3. Android build
 

@@ -55,6 +55,7 @@ No internal Artifactory account or sibling `msp-ios-sdk` checkout is required fo
 
 - Unity C# API (`MSP`, `MSPAdLoader`, interstitial flow)
 - Android/iOS bridge (`MSPUnityBridge`, `MSPUnityEntry`)
+- Android bridge AAR bundled at `upm/Plugins/Android/msp-unity-bridge-release.aar`
 - Adapter registry (`MSPUnityAdapterRegistry`)
 - iOS postprocess Podfile builder (CocoaPods trunk by default)
 - Android core dependencies (`msp-core`, `prebid-adapter`) via Maven Central
@@ -102,8 +103,8 @@ Add new packages under `packages/adapter-<name>/` using the same pattern:
 
 1. Verify public native versions (`MSPUnityNativeVersions`) match Maven Central / CocoaPods trunk
 2. Bump versions in `upm/package.json` and adapter `package.json`
-3. Run `tools/release/validate-packages.sh`
-4. Tag repo (`v0.2.0`)
+3. Run `tools/release/build-packages.sh` (builds Android bridge AAR, validates, packs tgz files)
+4. Tag repo (`v0.0.1-rc.0`)
 5. Validate in a clean Unity project:
    - core only (should build, but no nova ads)
    - core + nova (should load/show nova interstitial)

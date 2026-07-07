@@ -26,6 +26,14 @@ make copy
 UNITY_PLUGINS_DIR=/path/to/YourUnityProject/Assets/Plugins/Android make install
 ```
 
+For release packaging, copy into the publishable core package:
+
+```bash
+UNITY_PLUGINS_DIR=../upm/Plugins/Android make install
+```
+
+Or run `./tools/release/build-packages.sh` from the repo root.
+
 Manual Gradle (equivalent to `make build`):
 
 ```bash
