@@ -5,7 +5,7 @@
       "depth": 0,
       "source": "local",
       "dependencies": {
-        "ai.themsp.unity.core": "0.2.0"
+        "ai.themsp.unity.core": "0.0.1-rc.0"
       }
     },
     "ai.themsp.unity.core": {
