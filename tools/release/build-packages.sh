@@ -19,6 +19,9 @@ ADAPTERS=(
   applovin
 )
 
+echo "[MSP Unity] Syncing package versions..."
+"$ROOT/tools/release/sync-package-versions.sh"
+
 echo "[MSP Unity] Building Android bridge AAR into upm/Plugins/Android..."
 (
   cd "$ROOT/android-bridge"

@@ -143,10 +143,12 @@ Add new packages under `packages/adapter-<name>/` using the same pattern:
 
 ## Release checklist
 
-1. Verify public native versions (`MSPUnityNativeVersions`) match Maven Central / CocoaPods trunk
-2. Bump versions in `upm/package.json` and every adapter `package.json`
-3. Run `tools/release/build-packages.sh` (builds Android bridge AAR, validates, packs tgz files into `build/`)
-4. Tag repo (`v0.0.1-rc.0`)
+1. Set Unity package version in **one place**: `tools/release/VERSION`
+2. Verify public native versions (`MSPUnityNativeVersions`) match Maven Central / CocoaPods trunk
+3. Run `tools/release/build-packages.sh` (syncs versions into all `package.json`, builds Android bridge AAR, validates, packs tgz files into `build/`)
+4. Tag repo to match `VERSION` (e.g. `v0.0.1-rc.0`)
 5. Validate in a clean Unity project:
    - core only (should build, but no network-specific ads)
    - core + selected adapters (should load/show for those networks)
+
+Do not hand-edit version fields in individual `package.json` files; `sync-package-versions.sh` overwrites them from `tools/release/VERSION`.

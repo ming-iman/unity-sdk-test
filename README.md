@@ -55,11 +55,16 @@ make install
 For release packaging (copies AAR into the publishable core package):
 
 ```bash
+# 1) bump Unity package version in one place
+echo '0.0.2-rc.0' > tools/release/VERSION
+
+# 2) build AAR + sync versions + pack tarballs into build/
 ./tools/release/build-packages.sh
 ```
 
 The release AAR is shipped inside `upm/Plugins/Android/msp-unity-bridge-release.aar`.
 Packaged `.tgz` files are written to `build/` via `tools/release/build-packages.sh`.
+Unity package version is owned by `tools/release/VERSION` and synced into all `package.json` files automatically.
 
 ### 3. Android build
 

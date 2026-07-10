@@ -29,6 +29,9 @@ ADAPTERS=(
 
 echo "[MSP Unity] Validating publishable package layout..."
 
+"$ROOT/tools/release/sync-package-versions.sh"
+
+require_file "$ROOT/tools/release/VERSION"
 require_file "$ROOT/upm/package.json"
 require_file "$ROOT/upm/Runtime/Adapter/MSPUnityAdapterRegistry.cs"
 require_file "$ROOT/upm/Runtime/Adapter/MSPUnityNativeVersions.cs"
@@ -39,7 +42,12 @@ require_file "$ROOT/upm/Editor/Dependencies.xml"
 require_file "$ROOT/upm/Plugins/Android/msp-unity-bridge-release.aar"
 require_file "$ROOT/docs/publishing-layout.md"
 
-core_version="$(python3 -c "import json; print(json.load(open('$ROOT/upm/package.json'))['version'])")"
+core_version="$(tr -d '[:space:]' < "$ROOT/tools/release/VERSION")"
+package_version="$(python3 -c "import json; print(json.load(open('$ROOT/upm/package.json'))['version'])")"
+if [[ "$core_version" != "$package_version" ]]; then
+  echo "Version mismatch after sync: VERSION=$core_version upm/package.json=$package_version" >&2
+  exit 1
+fi
 
 for entry in "${ADAPTERS[@]}"; do
   adapter="${entry%%:*}"
@@ -57,8 +65,9 @@ for entry in "${ADAPTERS[@]}"; do
   fi
 
   adapter_version="$(python3 -c "import json; print(json.load(open('$adapter_root/package.json'))['version'])")"
-  if [[ "$core_version" != "$adapter_version" ]]; then
-    echo "Version mismatch: core=$core_version adapter-$adapter=$adapter_version" >&2
+  core_dep="$(python3 -c "import json; print(json.load(open('$adapter_root/package.json'))['dependencies']['ai.themsp.unity.core'])")"
+  if [[ "$core_version" != "$adapter_version" || "$core_version" != "$core_dep" ]]; then
+    echo "Version mismatch: VERSION=$core_version adapter-$adapter=$adapter_version core_dep=$core_dep" >&2
     exit 1
   fi
 done
