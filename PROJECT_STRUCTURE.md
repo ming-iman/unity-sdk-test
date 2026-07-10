@@ -7,7 +7,7 @@ This file explains the purpose of subdirectories inside `./msp-unity-sdk` (the U
 - `android-bridge`: Native Android bridge code and Gradle modules used by the Unity plugin.
 - `demo`: Unity demo project used for SDK integration testing and validation.
 - `docs`: Project documentation (integration notes, publishing guides, design notes).
-- `packages`: Optional Unity packages (for example, adapter-specific packages such as Nova).
+- `packages`: Optional Unity adapter packages (one package per ad network).
 - `tools`: Development and release helper scripts.
 - `upm`: Core Unity UPM package for MSP SDK runtime/editor functionality.
 
@@ -22,9 +22,10 @@ This file explains the purpose of subdirectories inside `./msp-unity-sdk` (the U
 
 - `docs/*`: Integration and publishing docs; includes setup guides and release notes.
 
-- `packages/adapter-nova`: Optional Nova adapter Unity package (runtime + editor pieces).
+- `packages/adapter-*`: Optional adapters (nova, google, facebook, unity, inmobi, mobilefuse, mintegral, pubmatic, moloco, amazon, liftoff, applovin).
 - `packages/*/Runtime`: Runtime integration logic for optional packages.
 - `packages/*/Editor`: Editor-time install/config/build helpers for optional packages.
+- `packages/*/Plugins/iOS`: Native iOS bootstrap that registers the network manager.
 
 - `tools/release`: Release and validation scripts for packaging/publishing.
 - `tools/*`: Internal utility scripts used in local development and CI.

@@ -1,0 +1,19 @@
+{
+  "name": "MSP.Unity.Adapter.Moloco.Editor",
+  "rootNamespace": "MSP.Unity.Adapter.Moloco.Editor",
+  "references": [
+    "MSP.Unity.Runtime",
+    "MSP.Unity.Adapter.Moloco"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

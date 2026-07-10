@@ -1,0 +1,19 @@
+{
+  "name": "MSP.Unity.Adapter.Mintegral.Editor",
+  "rootNamespace": "MSP.Unity.Adapter.Mintegral.Editor",
+  "references": [
+    "MSP.Unity.Runtime",
+    "MSP.Unity.Adapter.Mintegral"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

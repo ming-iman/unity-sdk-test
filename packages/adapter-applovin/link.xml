@@ -1,0 +1,6 @@
+<linker>
+  <assembly fullname="MSP.Unity.Adapter.Applovin" preserve="all">
+    <type fullname="MSP.Unity.Adapter.Applovin.ApplovinAdapterRegistration" preserve="all" />
+    <type fullname="MSP.Unity.Adapter.Applovin.ApplovinAdapterContributor" preserve="all" />
+  </assembly>
+</linker>

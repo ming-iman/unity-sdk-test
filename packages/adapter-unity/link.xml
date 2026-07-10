@@ -1,0 +1,6 @@
+<linker>
+  <assembly fullname="MSP.Unity.Adapter.UnityAds" preserve="all">
+    <type fullname="MSP.Unity.Adapter.UnityAds.UnityAdsAdapterRegistration" preserve="all" />
+    <type fullname="MSP.Unity.Adapter.UnityAds.UnityAdsAdapterContributor" preserve="all" />
+  </assembly>
+</linker>

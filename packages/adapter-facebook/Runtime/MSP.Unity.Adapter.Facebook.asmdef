@@ -1,0 +1,16 @@
+{
+  "name": "MSP.Unity.Adapter.Facebook",
+  "rootNamespace": "MSP.Unity.Adapter.Facebook",
+  "references": [
+    "MSP.Unity.Runtime"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

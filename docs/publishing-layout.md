@@ -1,6 +1,6 @@
 # MSP Unity SDK Publishing Layout
 
-This document describes the publishable layout for MSP Unity SDK, starting with the Nova adapter.
+This document describes the publishable layout for MSP Unity SDK and optional adapters.
 
 ## Package matrix
 
@@ -8,17 +8,47 @@ This document describes the publishable layout for MSP Unity SDK, starting with 
 |---|---|---|
 | `ai.themsp.unity.core` | `upm/` | Yes |
 | `ai.themsp.unity.adapter.nova` | `packages/adapter-nova/` | Optional |
+| `ai.themsp.unity.adapter.google` | `packages/adapter-google/` | Optional |
+| `ai.themsp.unity.adapter.facebook` | `packages/adapter-facebook/` | Optional |
+| `ai.themsp.unity.adapter.unity` | `packages/adapter-unity/` | Optional (Unity Ads) |
+| `ai.themsp.unity.adapter.inmobi` | `packages/adapter-inmobi/` | Optional |
+| `ai.themsp.unity.adapter.mobilefuse` | `packages/adapter-mobilefuse/` | Optional |
+| `ai.themsp.unity.adapter.mintegral` | `packages/adapter-mintegral/` | Optional |
+| `ai.themsp.unity.adapter.pubmatic` | `packages/adapter-pubmatic/` | Optional |
+| `ai.themsp.unity.adapter.moloco` | `packages/adapter-moloco/` | Optional |
+| `ai.themsp.unity.adapter.amazon` | `packages/adapter-amazon/` | Optional |
+| `ai.themsp.unity.adapter.liftoff` | `packages/adapter-liftoff/` | Optional |
+| `ai.themsp.unity.adapter.applovin` | `packages/adapter-applovin/` | Optional |
 
 ## Native dependency sources (external users)
 
 | Platform | Source | Version pin |
 |---|---|---|
 | Android | [Maven Central](https://central.sonatype.com/search?namespace=ai.themsp) (`ai.themsp:*`) | `4.0.0` |
-| iOS | [CocoaPods trunk](https://cocoapods.org) (`MSPCore`, `MSPNovaAdapter`, …) | `4.0.9` |
+| iOS | [CocoaPods trunk](https://cocoapods.org) (`MSPCore`, adapter pods, …) | `4.0.9` |
 
 Version pins live in `upm/Runtime/Adapter/MSPUnityNativeVersions.cs`.
 
 No internal Artifactory account or sibling `msp-ios-sdk` checkout is required for external integration.
+
+### Adapter native coordinates
+
+| Adapter id | Android Maven | iOS pod | Notes |
+|---|---|---|---|
+| `nova` | `ai.themsp:nova-adapter` | `MSPNovaAdapter` | |
+| `google` | `ai.themsp:google-adapter` | `MSPGoogleAdapter` | Requires Google Ads App ID |
+| `facebook` | `ai.themsp:facebook-adapter` | `MSPFacebookAdapter` | |
+| `unity` | `ai.themsp:unity-adapter` | `UnityAdapter` | Unity Ads network |
+| `inmobi` | `ai.themsp:inmobi-adapter` | `InmobiAdapter` | |
+| `mobilefuse` | `ai.themsp:mobilefuse-adapter` | `MobilefuseAdapter` | |
+| `mintegral` | `ai.themsp:mintegral-adapter` | `MintegralAdapter` | |
+| `pubmatic` | `ai.themsp:pubmatic-adapter` | `PubmaticAdapter` | |
+| `moloco` | `ai.themsp:moloco-adapter` | `MSPMolocoAdapter` | |
+| `amazon` | `ai.themsp:amazon-adapter` | `MSPAmazonAdapter` | |
+| `liftoff` | `ai.themsp:liftoff-adapter` | `MSPLiftoffAdapter` | |
+| `applovin` | `ai.themsp:applovin-adapter` | `MSPApplovinMaxAdapter` | |
+
+Some iOS adapter pods may not yet be published on CocoaPods trunk for every version; use local SDK override for those during development.
 
 ### Local monorepo dev override (optional)
 
@@ -33,21 +63,26 @@ No internal Artifactory account or sibling `msp-ios-sdk` checkout is required fo
 {
   "dependencies": {
     "ai.themsp.unity.core": "file:../../upm",
-    "ai.themsp.unity.adapter.nova": "file:../../packages/adapter-nova"
+    "ai.themsp.unity.adapter.nova": "file:../../packages/adapter-nova",
+    "ai.themsp.unity.adapter.google": "file:../../packages/adapter-google"
   }
 }
 ```
 
-## User install (git tag release)
+Install only the adapters you need. Core alone builds; ads for a network require that network's adapter package.
+
+## User install (git tag / tarball release)
 
 ```json
 {
   "dependencies": {
-    "ai.themsp.unity.core": "https://github.com/<org>/msp-unity-sdk.git?path=/upm#v0.2.0",
-    "ai.themsp.unity.adapter.nova": "https://github.com/<org>/msp-unity-sdk.git?path=/packages/adapter-nova#v0.2.0"
+    "ai.themsp.unity.core": "file:../build/ai.themsp.unity.core-0.0.1-rc.0.tgz",
+    "ai.themsp.unity.adapter.nova": "file:../build/ai.themsp.unity.adapter.nova-0.0.1-rc.0.tgz"
   }
 }
 ```
+
+Release tarballs are produced under `build/` by `tools/release/build-packages.sh`.
 
 ## Responsibility split
 
@@ -60,20 +95,22 @@ No internal Artifactory account or sibling `msp-ios-sdk` checkout is required fo
 - iOS postprocess Podfile builder (CocoaPods trunk by default)
 - Android core dependencies (`msp-core`, `prebid-adapter`) via Maven Central
 
-### Nova adapter (`packages/adapter-nova/`)
+### Optional adapters (`packages/adapter-*`)
+
+Each adapter package:
 
 - Registers itself into `MSPUnityAdapterRegistry`
-- Android: `ai.themsp:nova-adapter:4.0.0` (Maven Central)
-- iOS: `MSPNovaAdapter` `4.0.9` (CocoaPods trunk; bundles `NovaCore`)
-- iOS bootstrap: `msp_unity_register_adapter_nova` registers `NovaManager`
+- Declares Android Maven coordinates in `Editor/Dependencies.xml`
+- Declares iOS pod + bootstrap (`Plugins/iOS/MSPUnity*Bootstrap.swift`)
+- Is independently installable
 
 ## Runtime flow
 
-1. User installs `core` + `adapter-nova`
-2. Nova package registers adapter metadata at editor/runtime load
+1. User installs `core` + one or more adapter packages
+2. Adapter packages register metadata at editor/runtime load
 3. `MSP.Initialize()` activates iOS adapter registration, then initializes MSP
 4. iOS export generates Podfile from registry and runs `pod install`
-5. Android EDM resolves core + nova artifacts from Maven Central
+5. Android EDM resolves core + selected adapter artifacts from Maven Central
 
 ## Prerequisites for external users
 
@@ -82,6 +119,7 @@ No internal Artifactory account or sibling `msp-ios-sdk` checkout is required fo
 - Unity External Dependency Manager (EDM4U)
 - Network access to Maven Central and Google Maven
 - No Artifactory credentials required
+- Google adapter: set `com.google.android.gms.ads.APPLICATION_ID` in AndroidManifest
 
 ### iOS
 
@@ -89,22 +127,26 @@ No internal Artifactory account or sibling `msp-ios-sdk` checkout is required fo
 - Network access to CocoaPods CDN and `github.com/ParticleMedia/msp-ios-sdk-public` release zips
 - Xcode 15+ / iOS 15+ deployment target
 - Trunk MSP pods ship **dynamic** xcframeworks; the Unity export postprocess embeds them into the app bundle automatically
+- Google adapter: GAD App ID is injected by postprocess when Google is registered
 
-## Next adapters
+## Adding future adapters
 
 Add new packages under `packages/adapter-<name>/` using the same pattern:
 
 - `Runtime/<Name>AdapterContributor.cs`
 - `Editor/Dependencies.xml` (Maven Central coordinates only)
-- `Plugins/iOS/MSPUnity<Name>Bootstrap.swift` (if native manager registration is needed)
-- Pin iOS pod version in contributor via `MSPUnityNativeVersions` or adapter-specific constant
+- `Plugins/iOS/MSPUnity<Name>Bootstrap.swift` (native manager registration)
+- Register assembly in `MSPUnityOptionalAdapterLoader`
+- Add package name to `MSPUnityIosAdapterBootstrapEnsurer`
+- Add adapter id to `MSPUnityEntry.linkedOptionalAdapterIds`
+- Pin iOS pod version via `MSPUnityNativeVersions`
 
 ## Release checklist
 
 1. Verify public native versions (`MSPUnityNativeVersions`) match Maven Central / CocoaPods trunk
-2. Bump versions in `upm/package.json` and adapter `package.json`
+2. Bump versions in `upm/package.json` and every adapter `package.json`
 3. Run `tools/release/build-packages.sh` (builds Android bridge AAR, validates, packs tgz files into `build/`)
 4. Tag repo (`v0.0.1-rc.0`)
 5. Validate in a clean Unity project:
-   - core only (should build, but no nova ads)
-   - core + nova (should load/show nova interstitial)
+   - core only (should build, but no network-specific ads)
+   - core + selected adapters (should load/show for those networks)

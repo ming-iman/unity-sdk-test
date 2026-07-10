@@ -1,0 +1,6 @@
+<linker>
+  <assembly fullname="MSP.Unity.Adapter.Pubmatic" preserve="all">
+    <type fullname="MSP.Unity.Adapter.Pubmatic.PubmaticAdapterRegistration" preserve="all" />
+    <type fullname="MSP.Unity.Adapter.Pubmatic.PubmaticAdapterContributor" preserve="all" />
+  </assembly>
+</linker>

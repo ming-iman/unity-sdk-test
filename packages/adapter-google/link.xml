@@ -1,0 +1,6 @@
+<linker>
+  <assembly fullname="MSP.Unity.Adapter.Google" preserve="all">
+    <type fullname="MSP.Unity.Adapter.Google.GoogleAdapterRegistration" preserve="all" />
+    <type fullname="MSP.Unity.Adapter.Google.GoogleAdapterContributor" preserve="all" />
+  </assembly>
+</linker>

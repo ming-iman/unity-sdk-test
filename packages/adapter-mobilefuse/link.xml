@@ -1,0 +1,6 @@
+<linker>
+  <assembly fullname="MSP.Unity.Adapter.Mobilefuse" preserve="all">
+    <type fullname="MSP.Unity.Adapter.Mobilefuse.MobilefuseAdapterRegistration" preserve="all" />
+    <type fullname="MSP.Unity.Adapter.Mobilefuse.MobilefuseAdapterContributor" preserve="all" />
+  </assembly>
+</linker>

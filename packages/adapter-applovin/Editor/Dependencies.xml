@@ -1,0 +1,5 @@
+<dependencies>
+  <androidPackages>
+    <androidPackage spec="ai.themsp:applovin-adapter:4.0.0" />
+  </androidPackages>
+</dependencies>

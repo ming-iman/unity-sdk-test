@@ -323,20 +323,48 @@ end
                 case "MSPNovaAdapter":
                     yield return new MSPUnityIosPod("MSPNovaAdapter", MSPUnityIosPodSource.SdkRoot);
                     yield return new MSPUnityIosPod("NovaCore", MSPUnityIosPodSource.SdkRoot);
-                    if (LocalThirdPartyPodPaths.TryGetValue("MSPKingfisher", out var kingfisherPath))
+                    foreach (var thirdParty in ResolveLocalThirdPartyPods())
                     {
-                        yield return new MSPUnityIosPod("MSPKingfisher", MSPUnityIosPodSource.SdkThirdParty, relativePath: kingfisherPath);
+                        yield return thirdParty;
                     }
 
-                    if (LocalThirdPartyPodPaths.TryGetValue("MSPSnapKit", out var snapKitPath))
+                    yield break;
+                case "MSPGoogleAdapter":
+                case "MSPFacebookAdapter":
+                case "UnityAdapter":
+                case "InmobiAdapter":
+                case "MobilefuseAdapter":
+                case "MintegralAdapter":
+                case "PubmaticAdapter":
+                case "MSPMolocoAdapter":
+                case "MSPAmazonAdapter":
+                case "MSPLiftoffAdapter":
+                    yield return new MSPUnityIosPod(pod.Name, MSPUnityIosPodSource.SdkRoot);
+                    yield break;
+                case "MSPApplovinMaxAdapter":
+                    yield return new MSPUnityIosPod("MSPApplovinMaxAdapter", MSPUnityIosPodSource.SdkRoot);
+                    foreach (var thirdParty in ResolveLocalThirdPartyPods())
                     {
-                        yield return new MSPUnityIosPod("MSPSnapKit", MSPUnityIosPodSource.SdkThirdParty, relativePath: snapKitPath);
+                        yield return thirdParty;
                     }
 
                     yield break;
                 default:
                     yield return pod;
                     yield break;
+            }
+        }
+
+        private static IEnumerable<MSPUnityIosPod> ResolveLocalThirdPartyPods()
+        {
+            if (LocalThirdPartyPodPaths.TryGetValue("MSPKingfisher", out var kingfisherPath))
+            {
+                yield return new MSPUnityIosPod("MSPKingfisher", MSPUnityIosPodSource.SdkThirdParty, relativePath: kingfisherPath);
+            }
+
+            if (LocalThirdPartyPodPaths.TryGetValue("MSPSnapKit", out var snapKitPath))
+            {
+                yield return new MSPUnityIosPod("MSPSnapKit", MSPUnityIosPodSource.SdkThirdParty, relativePath: snapKitPath);
             }
         }
 

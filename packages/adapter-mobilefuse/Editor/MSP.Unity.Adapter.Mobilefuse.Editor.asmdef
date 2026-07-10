@@ -1,0 +1,19 @@
+{
+  "name": "MSP.Unity.Adapter.Mobilefuse.Editor",
+  "rootNamespace": "MSP.Unity.Adapter.Mobilefuse.Editor",
+  "references": [
+    "MSP.Unity.Runtime",
+    "MSP.Unity.Adapter.Mobilefuse"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

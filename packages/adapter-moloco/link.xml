@@ -1,0 +1,6 @@
+<linker>
+  <assembly fullname="MSP.Unity.Adapter.Moloco" preserve="all">
+    <type fullname="MSP.Unity.Adapter.Moloco.MolocoAdapterRegistration" preserve="all" />
+    <type fullname="MSP.Unity.Adapter.Moloco.MolocoAdapterContributor" preserve="all" />
+  </assembly>
+</linker>

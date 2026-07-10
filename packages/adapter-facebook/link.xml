@@ -1,0 +1,6 @@
+<linker>
+  <assembly fullname="MSP.Unity.Adapter.Facebook" preserve="all">
+    <type fullname="MSP.Unity.Adapter.Facebook.FacebookAdapterRegistration" preserve="all" />
+    <type fullname="MSP.Unity.Adapter.Facebook.FacebookAdapterContributor" preserve="all" />
+  </assembly>
+</linker>

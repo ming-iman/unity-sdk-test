@@ -1,0 +1,6 @@
+<linker>
+  <assembly fullname="MSP.Unity.Adapter.Amazon" preserve="all">
+    <type fullname="MSP.Unity.Adapter.Amazon.AmazonAdapterRegistration" preserve="all" />
+    <type fullname="MSP.Unity.Adapter.Amazon.AmazonAdapterContributor" preserve="all" />
+  </assembly>
+</linker>

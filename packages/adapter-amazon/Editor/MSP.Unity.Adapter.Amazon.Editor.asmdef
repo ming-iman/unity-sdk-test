@@ -1,0 +1,19 @@
+{
+  "name": "MSP.Unity.Adapter.Amazon.Editor",
+  "rootNamespace": "MSP.Unity.Adapter.Amazon.Editor",
+  "references": [
+    "MSP.Unity.Runtime",
+    "MSP.Unity.Adapter.Amazon"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

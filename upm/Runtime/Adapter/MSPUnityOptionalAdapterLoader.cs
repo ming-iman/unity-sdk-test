@@ -7,7 +7,18 @@ namespace MSP.Unity.Adapter
     {
         private static readonly string[] KnownRegistrationTypes =
         {
-            "MSP.Unity.Adapter.Nova.NovaAdapterRegistration, MSP.Unity.Adapter.Nova"
+            "MSP.Unity.Adapter.Nova.NovaAdapterRegistration, MSP.Unity.Adapter.Nova",
+            "MSP.Unity.Adapter.Google.GoogleAdapterRegistration, MSP.Unity.Adapter.Google",
+            "MSP.Unity.Adapter.Facebook.FacebookAdapterRegistration, MSP.Unity.Adapter.Facebook",
+            "MSP.Unity.Adapter.UnityAds.UnityAdsAdapterRegistration, MSP.Unity.Adapter.UnityAds",
+            "MSP.Unity.Adapter.Inmobi.InmobiAdapterRegistration, MSP.Unity.Adapter.Inmobi",
+            "MSP.Unity.Adapter.Mobilefuse.MobilefuseAdapterRegistration, MSP.Unity.Adapter.Mobilefuse",
+            "MSP.Unity.Adapter.Mintegral.MintegralAdapterRegistration, MSP.Unity.Adapter.Mintegral",
+            "MSP.Unity.Adapter.Pubmatic.PubmaticAdapterRegistration, MSP.Unity.Adapter.Pubmatic",
+            "MSP.Unity.Adapter.Moloco.MolocoAdapterRegistration, MSP.Unity.Adapter.Moloco",
+            "MSP.Unity.Adapter.Amazon.AmazonAdapterRegistration, MSP.Unity.Adapter.Amazon",
+            "MSP.Unity.Adapter.Liftoff.LiftoffAdapterRegistration, MSP.Unity.Adapter.Liftoff",
+            "MSP.Unity.Adapter.Applovin.ApplovinAdapterRegistration, MSP.Unity.Adapter.Applovin"
         };
 
         public static void EnsureRegistered()

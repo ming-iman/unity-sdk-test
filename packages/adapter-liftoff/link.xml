@@ -1,0 +1,6 @@
+<linker>
+  <assembly fullname="MSP.Unity.Adapter.Liftoff" preserve="all">
+    <type fullname="MSP.Unity.Adapter.Liftoff.LiftoffAdapterRegistration" preserve="all" />
+    <type fullname="MSP.Unity.Adapter.Liftoff.LiftoffAdapterContributor" preserve="all" />
+  </assembly>
+</linker>

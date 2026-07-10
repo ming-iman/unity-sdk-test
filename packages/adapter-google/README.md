@@ -1,0 +1,26 @@
+# MSP Unity Adapter - Google
+
+Optional Google adapter for MSP Unity SDK.
+
+## Install
+
+Add both packages to `Packages/manifest.json`:
+
+```json
+{
+  "dependencies": {
+    "ai.themsp.unity.core": "file:../../upm",
+    "ai.themsp.unity.adapter.google": "file:../../packages/adapter-google"
+  }
+}
+```
+
+## What this package adds
+
+- Android (Maven Central): `ai.themsp:google-adapter:4.0.0`
+- iOS (CocoaPods): `MSPGoogleAdapter` `4.0.9`
+- iOS bootstrap registration for `GoogleManager`
+
+## Usage
+
+Request ads with `ad_network = msp_google` (or set `MSPAdRequest.AdNetwork`).

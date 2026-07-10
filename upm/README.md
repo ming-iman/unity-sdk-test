@@ -17,7 +17,8 @@ Publishing layout: see [../docs/publishing-layout.md](../docs/publishing-layout.
 ## Adapter model
 
 - Core includes Unity API, bridge, and adapter registry.
-- Optional adapters (Nova first) are separate UPM packages under `../packages/`.
+- Optional adapters are separate UPM packages under `../packages/adapter-*`.
+  Supported: Nova, Google, Facebook, Unity Ads, InMobi, MobileFuse, Mintegral, PubMatic, Moloco, Amazon, Liftoff, AppLovin.
 
 ## Status
 
@@ -26,5 +27,6 @@ Publishing layout: see [../docs/publishing-layout.md](../docs/publishing-layout.
 - Android bridge integrated and validated on demo app
 - iOS bridge wired with CocoaPods postprocess for demo export
 - Nova adapter package for modular publishing
+- Full optional adapter package set under `packages/adapter-*`
 - Public native deps: Maven Central (Android `4.0.0`) + CocoaPods trunk (iOS `4.0.9`)
 - Editor mock flow available for local demo

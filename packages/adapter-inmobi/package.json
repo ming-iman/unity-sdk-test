@@ -1,0 +1,16 @@
+{
+  "name": "ai.themsp.unity.adapter.inmobi",
+  "displayName": "MSP Unity Adapter - InMobi",
+  "version": "0.0.1-rc.0",
+  "unity": "2021.3",
+  "description": "Optional InMobi adapter package for MSP Unity SDK.",
+  "keywords": [
+    "msp",
+    "ads",
+    "inmobi",
+    "adapter"
+  ],
+  "dependencies": {
+    "ai.themsp.unity.core": "0.0.1-rc.0"
+  }
+}

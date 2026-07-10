@@ -21,7 +21,20 @@ public final class MSPUnityEntry: NSObject {
     fileprivate static var loadedAds: [String: MSPAd] = [:]
     fileprivate static var adListeners: [String: UnityAdListener] = [:]
     private static var registeredManagers: [AdNetworkManager] = []
-    private static let linkedOptionalAdapterIds = ["nova"]
+    private static let linkedOptionalAdapterIds = [
+        "nova",
+        "google",
+        "facebook",
+        "unity",
+        "inmobi",
+        "mobilefuse",
+        "mintegral",
+        "pubmatic",
+        "moloco",
+        "amazon",
+        "liftoff",
+        "applovin"
+    ]
 
     public static func registerManager(_ manager: AdNetworkManager) {
         registeredManagers.append(manager)

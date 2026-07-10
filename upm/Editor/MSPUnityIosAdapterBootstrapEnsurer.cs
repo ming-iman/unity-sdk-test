@@ -12,7 +12,18 @@ namespace MSP.Unity.Editor
     {
         private static readonly string[] KnownAdapterPackageNames =
         {
-            "ai.themsp.unity.adapter.nova"
+            "ai.themsp.unity.adapter.nova",
+            "ai.themsp.unity.adapter.google",
+            "ai.themsp.unity.adapter.facebook",
+            "ai.themsp.unity.adapter.unity",
+            "ai.themsp.unity.adapter.inmobi",
+            "ai.themsp.unity.adapter.mobilefuse",
+            "ai.themsp.unity.adapter.mintegral",
+            "ai.themsp.unity.adapter.pubmatic",
+            "ai.themsp.unity.adapter.moloco",
+            "ai.themsp.unity.adapter.amazon",
+            "ai.themsp.unity.adapter.liftoff",
+            "ai.themsp.unity.adapter.applovin"
         };
 
         internal static void EnsureBootstrapSources(string xcodeProjectPath)
@@ -22,12 +33,13 @@ namespace MSP.Unity.Editor
 
             if (bootstrapFiles.Count == 0)
             {
-                var hasNovaAdapter = MSPUnityAdapterRegistry.GetAll().Any(adapter => adapter.AdapterId == "nova");
-                if (hasNovaAdapter)
+                var registeredAdapters = MSPUnityAdapterRegistry.GetAll();
+                if (registeredAdapters.Count > 0)
                 {
+                    var adapterIds = string.Join(", ", registeredAdapters.Select(adapter => adapter.AdapterId));
                     UnityEngine.Debug.LogWarning(
-                        "[MSP iOS] Nova adapter is installed but no MSPUnity*Bootstrap.swift files were exported. " +
-                        "Reimport ai.themsp.unity.adapter.nova and rebuild the iOS player.");
+                        $"[MSP iOS] Adapters are installed ({adapterIds}) but no MSPUnity*Bootstrap.swift files were exported. " +
+                        "Reimport the adapter packages and rebuild the iOS player.");
                 }
 
                 return;

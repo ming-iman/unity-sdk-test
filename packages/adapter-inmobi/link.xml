@@ -1,0 +1,6 @@
+<linker>
+  <assembly fullname="MSP.Unity.Adapter.Inmobi" preserve="all">
+    <type fullname="MSP.Unity.Adapter.Inmobi.InmobiAdapterRegistration" preserve="all" />
+    <type fullname="MSP.Unity.Adapter.Inmobi.InmobiAdapterContributor" preserve="all" />
+  </assembly>
+</linker>

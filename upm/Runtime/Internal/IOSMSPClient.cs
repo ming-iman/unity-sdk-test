@@ -116,12 +116,6 @@ namespace MSP.Unity.Internal
             {
                 msp_unity_activate_adapter(adapter.AdapterId, adapter.IosBootstrapClassName ?? string.Empty);
             }
-
-            if (MSPUnityAdapterRegistry.GetAll().Count == 0 &&
-                MSPUnityOptionalAdapterLoader.IsAssemblyLoaded("MSP.Unity.Adapter.Nova"))
-            {
-                msp_unity_activate_adapter("nova", "MSPUnityNovaBootstrap");
-            }
         }
 #endif
 

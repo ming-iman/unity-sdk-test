@@ -1,0 +1,26 @@
+# MSP Unity Adapter - AppLovin
+
+Optional AppLovin adapter for MSP Unity SDK.
+
+## Install
+
+Add both packages to `Packages/manifest.json`:
+
+```json
+{
+  "dependencies": {
+    "ai.themsp.unity.core": "file:../../upm",
+    "ai.themsp.unity.adapter.applovin": "file:../../packages/adapter-applovin"
+  }
+}
+```
+
+## What this package adds
+
+- Android (Maven Central): `ai.themsp:applovin-adapter:4.0.0`
+- iOS (CocoaPods): `MSPApplovinMaxAdapter` `4.0.9`
+- iOS bootstrap registration for `ApplovinMaxManager`
+
+## Usage
+
+Request ads with `ad_network = msp_applovin` (or set `MSPAdRequest.AdNetwork`).

@@ -1,0 +1,19 @@
+{
+  "name": "MSP.Unity.Adapter.Inmobi.Editor",
+  "rootNamespace": "MSP.Unity.Adapter.Inmobi.Editor",
+  "references": [
+    "MSP.Unity.Runtime",
+    "MSP.Unity.Adapter.Inmobi"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

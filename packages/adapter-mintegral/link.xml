@@ -1,0 +1,6 @@
+<linker>
+  <assembly fullname="MSP.Unity.Adapter.Mintegral" preserve="all">
+    <type fullname="MSP.Unity.Adapter.Mintegral.MintegralAdapterRegistration" preserve="all" />
+    <type fullname="MSP.Unity.Adapter.Mintegral.MintegralAdapterContributor" preserve="all" />
+  </assembly>
+</linker>

@@ -1,0 +1,16 @@
+{
+  "name": "MSP.Unity.Adapter.Applovin",
+  "rootNamespace": "MSP.Unity.Adapter.Applovin",
+  "references": [
+    "MSP.Unity.Runtime"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

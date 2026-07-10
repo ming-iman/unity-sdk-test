@@ -8,11 +8,23 @@ All Unity-related MSP code lives under this directory.
 msp-unity-sdk/
 ├── upm/                      # ai.themsp.unity.core (required)
 ├── packages/
-│   └── adapter-nova/         # ai.themsp.unity.adapter.nova (optional)
+│   ├── adapter-nova/         # optional Nova
+│   ├── adapter-google/       # optional Google
+│   ├── adapter-facebook/     # optional Facebook
+│   ├── adapter-unity/        # optional Unity Ads
+│   ├── adapter-inmobi/       # optional InMobi
+│   ├── adapter-mobilefuse/   # optional MobileFuse
+│   ├── adapter-mintegral/    # optional Mintegral
+│   ├── adapter-pubmatic/     # optional PubMatic
+│   ├── adapter-moloco/       # optional Moloco
+│   ├── adapter-amazon/       # optional Amazon
+│   ├── adapter-liftoff/      # optional Liftoff
+│   └── adapter-applovin/     # optional AppLovin
 ├── android-bridge/           # Gradle project → msp-unity-bridge-release.aar
-├── demo/                     # Unity demo project (core + nova)
+├── demo/                     # Unity demo project
 ├── docs/                     # publishing/integration docs
 ├── tools/release/            # release validation scripts
+├── build/                    # generated release tarballs (gitignored)
 └── README.md
 ```
 
@@ -60,7 +72,7 @@ See `demo/Assets/Plugins/Android/README_MSP_SETUP.md` for Gradle / AdMob setup.
 The Unity iOS postprocess generates a `Podfile` from enabled adapters and runs
 `pod install` automatically. By default it uses **CocoaPods trunk** (no local `msp-ios-sdk` required).
 
-- Default iOS pods: `MSPCore`, `MSPNovaAdapter` at version `4.0.9`
+- Default iOS pods: `MSPCore` plus any installed adapter pods at version `4.0.9`
 - Skip auto pod install: set env `MSP_UNITY_SKIP_POD_INSTALL=1`
 - Local SDK dev override: set env `MSP_UNITY_USE_LOCAL_IOS_SDK=1` (optional `MSP_IOS_SDK_PATH` for non-sibling `msp-ios-sdk`)
 - `MSP_IOS_SDK_PATH` alone only affects CocoaPods Gemfile lookup during `pod install`
@@ -79,5 +91,5 @@ Build steps:
 ## UPM package
 
 The publishable Unity core plugin is in `upm/` (`ai.themsp.unity.core`).
-Optional adapters live under `packages/` (Nova first).
+Optional adapters live under `packages/adapter-*` (Nova, Google, Facebook, Unity Ads, InMobi, MobileFuse, Mintegral, PubMatic, Moloco, Amazon, Liftoff, AppLovin).
 See `docs/publishing-layout.md` and `upm/README.md` for API scope and status.

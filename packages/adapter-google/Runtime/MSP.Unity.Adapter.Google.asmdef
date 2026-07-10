@@ -1,0 +1,16 @@
+{
+  "name": "MSP.Unity.Adapter.Google",
+  "rootNamespace": "MSP.Unity.Adapter.Google",
+  "references": [
+    "MSP.Unity.Runtime"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
