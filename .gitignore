@@ -15,6 +15,11 @@ demo/.utmp/
 demo/build/
 demo/*.apk
 
+# Unity IDE-generated project files (regenerated on open / platform switch)
+demo/*.csproj
+demo/*.sln
+demo/*.csproj.user
+
 # Android bridge build
 android-bridge/bridge/build/
 android-bridge/build/
