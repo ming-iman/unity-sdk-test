@@ -34,7 +34,7 @@ msp-unity-sdk/
 
 Open `demo/` as a Unity project (Unity 6000.x tested).
 
-The demo resolves MSP packages from the Internal GitHub tag (remote UPM):
+The demo resolves MSP packages from the public test repo tag (remote UPM):
 
 ```json
 "ai.themsp.unity.core": "https://github.com/ming-iman/unity-sdk-test.git?path=/upm#v0.0.1-rc.1",
