@@ -37,8 +37,8 @@ Open `demo/` as a Unity project (Unity 6000.x tested).
 The demo resolves MSP packages from the Internal GitHub tag (remote UPM):
 
 ```json
-"ai.themsp.unity.core": "https://github.com/ParticleMedia/msp-unity-sdk.git?path=/upm#v0.0.1-rc.1",
-"ai.themsp.unity.adapter.nova": "https://github.com/ParticleMedia/msp-unity-sdk.git?path=/packages/adapter-nova#v0.0.1-rc.1"
+"ai.themsp.unity.core": "https://github.com/ming-iman/unity-sdk-test.git?path=/upm#v0.0.1-rc.1",
+"ai.themsp.unity.adapter.nova": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-nova#v0.0.1-rc.1"
 ```
 
 For local monorepo iteration, switch those entries back to `file:../../upm` and `file:../../packages/adapter-nova`. See `docs/publishing-layout.md` for install options.
