@@ -62,7 +62,7 @@ object MSPUnityBridge {
         val mesInitUrl = HostConfig.getMesHostUrl(orgId).trimEnd('/') + "/v1/event/sdk_init"
         Log.i(TAG, "MES sdk_init endpoint: $mesInitUrl")
 
-        // Keep aligned with msp-android Demo App profile parameters.
+        // Keep aligned with MSP Android demo profile parameters.
         val initParamsMap = mapOf(
             MSPConstants.INIT_PARAM_KEY_PPID to "shun-test-ppid",
             MSPConstants.INIT_PARAM_KEY_EMAIL to "shun.j@shun.com",

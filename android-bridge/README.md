@@ -7,7 +7,7 @@ This project builds the Android bridge AAR for Unity:
 
 ## Build
 
-From this repo:
+From this directory:
 
 ```bash
 make install
@@ -20,9 +20,10 @@ make build
 make copy
 ```
 
-`make install` uses `../../msp-android/gradlew` by default. Override Unity destination if needed:
+Requires a local `./gradlew` or `gradle` on `PATH`. Override if needed:
 
 ```bash
+GRADLEW=/path/to/gradlew make install
 UNITY_PLUGINS_DIR=/path/to/YourUnityProject/Assets/Plugins/Android make install
 ```
 
@@ -37,7 +38,8 @@ Or run `./tools/release/build-packages.sh` from the repo root.
 Manual Gradle (equivalent to `make build`):
 
 ```bash
-../../msp-android/gradlew -p . :bridge:assembleRelease
+gradle -p . :bridge:assembleRelease
+# or: ./gradlew -p . :bridge:assembleRelease
 ```
 
 ## Copy to Unity project

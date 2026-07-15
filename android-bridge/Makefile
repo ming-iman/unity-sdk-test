@@ -25,8 +25,8 @@ AAR_OUTPUT := $(ROOT_DIR)/bridge/build/outputs/aar/$(AAR_NAME)
 UNITY_PLUGINS_DIR ?= $(abspath $(ROOT_DIR)/../demo/Assets/Plugins/Android)
 UNITY_AAR_DEST := $(UNITY_PLUGINS_DIR)/$(AAR_NAME)
 
-# Prefer local wrapper, fall back to msp-android
-GRADLEW ?= $(if $(wildcard $(ROOT_DIR)/gradlew),$(ROOT_DIR)/gradlew,$(abspath $(ROOT_DIR)/../../msp-android/gradlew))
+# Prefer ./gradlew; otherwise use `gradle` from PATH (override with GRADLEW=...)
+GRADLEW ?= $(if $(wildcard $(ROOT_DIR)/gradlew),$(ROOT_DIR)/gradlew,gradle)
 
 .DEFAULT_GOAL := install
 
@@ -47,11 +47,15 @@ help:
 	@echo "  UNITY_PLUGINS_DIR=/path/to/Assets/Plugins/Android make install"
 
 check-gradlew:
-	@test -x "$(GRADLEW)" || { \
-		echo "error: gradlew not found or not executable: $(GRADLEW)"; \
-		echo "hint: ensure ../../msp-android/gradlew exists, or run 'gradle wrapper' in this repo"; \
+	@if [ -x "$(GRADLEW)" ]; then \
+		: ; \
+	elif command -v "$(GRADLEW)" >/dev/null 2>&1; then \
+		: ; \
+	else \
+		echo "error: Gradle not found: $(GRADLEW)"; \
+		echo "hint: install Gradle, run 'gradle wrapper' in android-bridge/, or set GRADLEW=/path/to/gradlew"; \
 		exit 1; \
-	}
+	fi
 
 check-unity-dir:
 	@mkdir -p "$(UNITY_PLUGINS_DIR)"

@@ -59,8 +59,8 @@ for entry in "${ADAPTERS[@]}"; do
   require_file "$adapter_root/Plugins/iOS/MSPUnity${pascal}Bootstrap.swift"
   require_file "$adapter_root/link.xml"
 
-  if grep -q "artifactory.nb-sandbox.com" "$adapter_root/Editor/Dependencies.xml"; then
-    echo "Dependencies.xml must not reference internal Artifactory for external release: $adapter" >&2
+  if grep -Eqi 'https?://' "$adapter_root/Editor/Dependencies.xml"; then
+    echo "Dependencies.xml must not embed repository URLs (Maven Central via EDM only): $adapter" >&2
     exit 1
   fi
 
@@ -72,8 +72,8 @@ for entry in "${ADAPTERS[@]}"; do
   fi
 done
 
-if grep -q "artifactory.nb-sandbox.com" "$ROOT/upm/Editor/Dependencies.xml"; then
-  echo "Dependencies.xml must not reference internal Artifactory for external release." >&2
+if grep -Eqi 'https?://' "$ROOT/upm/Editor/Dependencies.xml"; then
+  echo "Dependencies.xml must not embed repository URLs (Maven Central via EDM only)." >&2
   exit 1
 fi
 

@@ -3,7 +3,7 @@ using MSP.Unity;
 
 public class InterstitialTest : MonoBehaviour
 {
-    // Copied from msp-android demo app (AppProfiles.DEMO_APP).
+    // Demo / test credentials — replace with your MSP account values before production use.
     private const string DemoApiKey = "af7ce3f9-462d-4df1-815f-09314bb87ca3";
     private const int DemoOrgId = 1061;
     private const int DemoAppId = 1;

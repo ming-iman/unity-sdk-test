@@ -10,6 +10,4 @@ MSP runtime dependency setup for Unity (Android)
 3) Keep bridge AAR in:
 - Assets/Plugins/Android/msp-unity-bridge-release.aar
 
-If resolve fails on private artifacts, ensure network can reach:
-- https://artifactory.nb-sandbox.com/artifactory/libs-release-local
-- https://artifactory.nb-sandbox.com/artifactory/libs-snapshot-local
+Android native MSP artifacts resolve from **Maven Central** (`ai.themsp:*`) and Google Maven. No private repository credentials are required.

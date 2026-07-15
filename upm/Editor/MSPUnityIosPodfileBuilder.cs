@@ -269,33 +269,15 @@ end
             }
 
             var sdkPath = Environment.GetEnvironmentVariable(EnvMspIosSdkPath);
-            if (string.IsNullOrWhiteSpace(sdkPath))
-            {
-                sdkPath = ResolveDefaultLocalSdkPath();
-            }
-
             if (string.IsNullOrWhiteSpace(sdkPath) || !System.IO.Directory.Exists(sdkPath))
             {
+                UnityEngine.Debug.LogWarning(
+                    "[MSP iOS] MSP_UNITY_USE_LOCAL_IOS_SDK=1 requires MSP_IOS_SDK_PATH to point at a valid local iOS SDK checkout.");
                 return false;
             }
 
             escapedSdkPath = PathToEscapedPodPath(sdkPath);
             return true;
-        }
-
-        private static string ResolveDefaultLocalSdkPath()
-        {
-            var assetsPath = UnityEngine.Application.dataPath;
-            var demoRoot = System.IO.Directory.GetParent(assetsPath)?.FullName;
-            var repoRoot = System.IO.Directory.GetParent(demoRoot ?? string.Empty)?.FullName;
-            var newsBreakRoot = System.IO.Directory.GetParent(repoRoot ?? string.Empty)?.FullName;
-            if (string.IsNullOrEmpty(newsBreakRoot))
-            {
-                return string.Empty;
-            }
-
-            var sdkPath = System.IO.Path.Combine(newsBreakRoot, "msp-ios-sdk");
-            return System.IO.Directory.Exists(sdkPath) ? sdkPath : string.Empty;
         }
 
         private static string PathToEscapedPodPath(string sdkPath)

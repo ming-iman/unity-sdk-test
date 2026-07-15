@@ -20,7 +20,7 @@ This document describes the publishable layout for MSP Unity SDK and optional ad
 | `ai.themsp.unity.adapter.liftoff` | `packages/adapter-liftoff/` | Optional |
 | `ai.themsp.unity.adapter.applovin` | `packages/adapter-applovin/` | Optional |
 
-## Native dependency sources (external users)
+## Native dependency sources
 
 | Platform | Source | Version pin |
 |---|---|---|
@@ -29,7 +29,7 @@ This document describes the publishable layout for MSP Unity SDK and optional ad
 
 Version pins live in `upm/Runtime/Adapter/MSPUnityNativeVersions.cs`.
 
-No internal Artifactory account or sibling `msp-ios-sdk` checkout is required for external integration.
+Integrators do not need private Maven repositories or a local native SDK checkout.
 
 ### Adapter native coordinates
 
@@ -48,14 +48,14 @@ No internal Artifactory account or sibling `msp-ios-sdk` checkout is required fo
 | `liftoff` | `ai.themsp:liftoff-adapter` | `MSPLiftoffAdapter` | |
 | `applovin` | `ai.themsp:applovin-adapter` | `MSPApplovinMaxAdapter` | |
 
-Some iOS adapter pods may not yet be published on CocoaPods trunk for every version; use local SDK override for those during development.
+Some iOS adapter pods may not yet be published on CocoaPods trunk for every version; for local native SDK development set `MSP_UNITY_USE_LOCAL_IOS_SDK=1` and `MSP_IOS_SDK_PATH`.
 
-### Local monorepo dev override (optional)
+### Local iOS SDK override (optional, developers only)
 
 | Env var | Effect |
 |---|---|
-| `MSP_UNITY_USE_LOCAL_IOS_SDK=1` | Podfile uses local `:path` pods (optional `MSP_IOS_SDK_PATH` override) |
-| `MSP_IOS_SDK_PATH=/path/to/msp-ios-sdk` | Used for `bundle exec pod install` Gemfile only; does **not** switch Podfile to local pods unless `MSP_UNITY_USE_LOCAL_IOS_SDK=1` |
+| `MSP_UNITY_USE_LOCAL_IOS_SDK=1` | Podfile uses local `:path` pods |
+| `MSP_IOS_SDK_PATH=/path/to/ios-sdk` | Required when local mode is enabled; also used for `bundle exec pod install` Gemfile lookup |
 
 ## User install (local monorepo)
 
@@ -71,9 +71,7 @@ Some iOS adapter pods may not yet be published on CocoaPods trunk for every vers
 
 Install only the adapters you need. Core alone builds; ads for a network require that network's adapter package.
 
-## User install (git tag — public test repo)
-
-Demo currently resolves packages from the public mirror `ming-iman/unity-sdk-test` (no org auth required):
+## User install (git tag)
 
 ```json
 {
@@ -84,7 +82,7 @@ Demo currently resolves packages from the public mirror `ming-iman/unity-sdk-tes
 }
 ```
 
-Dev remote for that mirror: `public` → `git@github.com:ming-iman/unity-sdk-test.git`. Push releases with `git push public main` and `git push public vX.Y.Z`. Use the same tag for every package.
+Use the same tag for every package. Push matching `v*` tags to the remote that hosts these URLs (`git push public vX.Y.Z` when using the `public` remote).
 
 ## User install (tarball)
 
@@ -133,23 +131,22 @@ Each adapter package:
 
 - Unity External Dependency Manager (EDM4U)
 - Network access to Maven Central and Google Maven
-- No Artifactory credentials required
 - Google adapter: set `com.google.android.gms.ads.APPLICATION_ID` in AndroidManifest
 
 ### iOS
 
 - CocoaPods installed (`pod` in PATH)
-- Network access to CocoaPods CDN and `github.com/ParticleMedia/msp-ios-sdk-public` release zips
+- Network access to CocoaPods CDN (MSP pods resolve public release artifacts)
 - Xcode 15+ / iOS 15+ deployment target
 - Trunk MSP pods ship **dynamic** xcframeworks; the Unity export postprocess embeds them into the app bundle automatically
-- Google adapter: GAD App ID is injected by postprocess when Google is registered
+- Google adapter: GAD App ID is injected by postprocess when Google is registered (`MSP_UNITY_GAD_APP_ID` or Google sample default)
 
 ## Adding future adapters
 
 Add new packages under `packages/adapter-<name>/` using the same pattern:
 
 - `Runtime/<Name>AdapterContributor.cs`
-- `Editor/Dependencies.xml` (Maven Central coordinates only)
+- `Editor/Dependencies.xml` (Maven Central package specs only — no repository URLs)
 - `Plugins/iOS/MSPUnity<Name>Bootstrap.swift` (native manager registration)
 - Register assembly in `MSPUnityOptionalAdapterLoader`
 - Add package name to `MSPUnityIosAdapterBootstrapEnsurer`
@@ -161,7 +158,7 @@ Add new packages under `packages/adapter-<name>/` using the same pattern:
 1. Set Unity package version in **one place**: `tools/release/VERSION`
 2. Verify public native versions (`MSPUnityNativeVersions`) match Maven Central / CocoaPods trunk
 3. Run `tools/release/build-packages.sh` (syncs versions into all `package.json`, builds Android bridge AAR, validates, packs tgz files into `build/`)
-4. Tag repo to match `VERSION` (e.g. `v0.0.1-rc.0`)
+4. Tag repo to match `VERSION` (e.g. `v0.0.1-rc.1`) and push the tag to remotes used for git-link installs
 5. Validate in a clean Unity project:
    - core only (should build, but no network-specific ads)
    - core + selected adapters (should load/show for those networks)

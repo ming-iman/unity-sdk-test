@@ -99,10 +99,6 @@ namespace MSP.Unity.Editor
             var appId = Environment.GetEnvironmentVariable(EnvGoogleAdsAppId);
             if (string.IsNullOrWhiteSpace(appId))
             {
-                appId = ResolveGoogleAdsAppIdFromMspDemo();
-            }
-            if (string.IsNullOrWhiteSpace(appId))
-            {
                 appId = DefaultGoogleAdsAppId;
             }
 
@@ -120,53 +116,15 @@ namespace MSP.Unity.Editor
             UnityEngine.Debug.Log($"[MSP iOS] Set GADApplicationIdentifier: {appId}");
         }
 
-        private static string ResolveGoogleAdsAppIdFromMspDemo()
-        {
-            var sdkPath = ResolveMspIosSdkPath();
-            if (string.IsNullOrEmpty(sdkPath) || !Directory.Exists(sdkPath))
-            {
-                return string.Empty;
-            }
-
-            var plistPath = Path.Combine(sdkPath, "Examples", "MSPDemoApp", "MSPDemoApp", "Info.plist");
-            if (!File.Exists(plistPath))
-            {
-                return string.Empty;
-            }
-
-            try
-            {
-                var plist = new PlistDocument();
-                plist.ReadFromString(File.ReadAllText(plistPath));
-                return plist.root["GADApplicationIdentifier"]?.AsString() ?? string.Empty;
-            }
-            catch (Exception e)
-            {
-                UnityEngine.Debug.LogWarning(
-                    $"[MSP iOS] Failed to read GADApplicationIdentifier from MSPDemoApp Info.plist: {e.Message}");
-                return string.Empty;
-            }
-        }
-
         private static string ResolveMspIosSdkPath()
         {
             var fromEnv = Environment.GetEnvironmentVariable(EnvMspIosSdkPath);
-            if (!string.IsNullOrWhiteSpace(fromEnv))
-            {
-                return Path.GetFullPath(fromEnv.Trim());
-            }
-
-            // demo/Assets -> demo -> msp-unity-sdk -> NewsBreak/msp-ios-sdk
-            var assetsPath = Application.dataPath;
-            var demoRoot = Directory.GetParent(assetsPath)?.FullName;
-            var repoRoot = Directory.GetParent(demoRoot ?? string.Empty)?.FullName;
-            var newsBreakRoot = Directory.GetParent(repoRoot ?? string.Empty)?.FullName;
-            if (string.IsNullOrEmpty(newsBreakRoot))
+            if (string.IsNullOrWhiteSpace(fromEnv))
             {
                 return string.Empty;
             }
 
-            return Path.Combine(newsBreakRoot, "msp-ios-sdk");
+            return Path.GetFullPath(fromEnv.Trim());
         }
 
         private static void WritePodfile(string xcodeProjectPath)
