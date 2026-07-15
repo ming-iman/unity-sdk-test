@@ -76,8 +76,8 @@ Install only the adapters you need. Core alone builds; ads for a network require
 ```json
 {
   "dependencies": {
-    "ai.themsp.unity.core": "https://github.com/ming-iman/unity-sdk-test.git?path=/upm#v0.0.1-rc.2",
-    "ai.themsp.unity.adapter.nova": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-nova#v0.0.1-rc.2"
+    "ai.themsp.unity.core": "https://github.com/ming-iman/unity-sdk-test.git?path=/upm#v0.0.1-rc.3",
+    "ai.themsp.unity.adapter.nova": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-nova#v0.0.1-rc.3"
   }
 }
 ```
@@ -89,8 +89,8 @@ Use the same tag for every package. Push matching `v*` tags to the remote that h
 ```json
 {
   "dependencies": {
-    "ai.themsp.unity.core": "file:../build/ai.themsp.unity.core-0.0.1-rc.2.tgz",
-    "ai.themsp.unity.adapter.nova": "file:../build/ai.themsp.unity.adapter.nova-0.0.1-rc.2.tgz"
+    "ai.themsp.unity.core": "file:../build/ai.themsp.unity.core-0.0.1-rc.3.tgz",
+    "ai.themsp.unity.adapter.nova": "file:../build/ai.themsp.unity.adapter.nova-0.0.1-rc.3.tgz"
   }
 }
 ```

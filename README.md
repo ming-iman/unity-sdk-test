@@ -5,7 +5,7 @@ Unity Package Manager (UPM) SDK for MSP interstitial ads on Android and iOS.
 - **Unity packages:** `ai.themsp.unity.core` + optional `ai.themsp.unity.adapter.*`
 - **Native Android:** Maven Central (`ai.themsp:*`)
 - **Native iOS:** CocoaPods trunk (`MSPCore` and adapter pods)
-- **Current package version:** see `tools/release/VERSION` (now `0.0.1-rc.2`)
+- **Current package version:** see `tools/release/VERSION` (now `0.0.1-rc.3`)
 
 ## Project structure
 
@@ -54,8 +54,8 @@ Install **core** plus the adapters you need via one of:
 ```json
 {
   "dependencies": {
-    "ai.themsp.unity.core": "https://github.com/ming-iman/unity-sdk-test.git?path=/upm#v0.0.1-rc.2",
-    "ai.themsp.unity.adapter.nova": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-nova#v0.0.1-rc.2",
+    "ai.themsp.unity.core": "https://github.com/ming-iman/unity-sdk-test.git?path=/upm#v0.0.1-rc.3",
+    "ai.themsp.unity.adapter.nova": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-nova#v0.0.1-rc.3",
     "com.google.external-dependency-manager": "https://github.com/googlesamples/unity-jar-resolver.git?path=upm"
   }
 }
@@ -83,8 +83,8 @@ Use the **same tag** for every MSP package. Change the GitHub host/path when you
 Then in `Packages/manifest.json`:
 
 ```json
-"ai.themsp.unity.core": "file:../build/ai.themsp.unity.core-0.0.1-rc.2.tgz",
-"ai.themsp.unity.adapter.nova": "file:../build/ai.themsp.unity.adapter.nova-0.0.1-rc.2.tgz"
+"ai.themsp.unity.core": "file:../build/ai.themsp.unity.core-0.0.1-rc.3.tgz",
+"ai.themsp.unity.adapter.nova": "file:../build/ai.themsp.unity.adapter.nova-0.0.1-rc.3.tgz"
 ```
 
 ### 2. Android
