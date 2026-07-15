@@ -143,27 +143,32 @@ Open `demo/` in Unity. The sample resolves MSP packages from the public git tag 
 Unity package version is owned by **one file**: `tools/release/VERSION`.
 
 ```bash
-# 1) Set version
+# Publish version: sync package.json, commit, tag vX.Y.Z, push origin + public
+./tools/release/publish.sh 0.0.2-rc.0
+
+# Also rebuild bridge AAR and pack build/*.tgz
+./tools/release/publish.sh 0.0.2-rc.0 --pack
+
+# Preview only
+./tools/release/publish.sh 0.0.2-rc.0 --dry-run
+```
+
+Manual equivalent:
+
+```bash
 echo '0.0.2-rc.0' > tools/release/VERSION
-
-# 2) Sync package.json, build bridge AAR into upm/, validate, pack .tgz → build/
 ./tools/release/build-packages.sh
-
-# 3) Commit, then tag to match VERSION
+git add -u && git commit -m "chore(release): bump Unity package version to 0.0.2-rc.0"
 git tag -a "v0.0.2-rc.0" -m "MSP Unity SDK 0.0.2-rc.0"
-git push origin main
-git push origin "v0.0.2-rc.0"
-
-# Optional: mirror for public git-link installs
-git push public main
-git push public "v0.0.2-rc.0"
+git push origin main && git push origin "v0.0.2-rc.0"
+git push public main && git push public "v0.0.2-rc.0"
 ```
 
 Notes:
 
 - Do **not** hand-edit `version` in individual `package.json` files; `sync-package-versions.sh` overwrites them from `VERSION`.
 - Native MSP versions (Android Maven / iOS pods) live in `upm/Runtime/Adapter/MSPUnityNativeVersions.cs` and are independent of the Unity package version.
-- Remotes: `origin` (primary), optional `public` for a public mirror used by git `#tag` URLs.
+- Remotes: `origin` (primary), `public` (mirror for git `#tag` URLs). Override with `MSP_UNITY_ORIGIN_REMOTE` / `MSP_UNITY_PUBLIC_REMOTE`.
 - Full checklist and package matrix: [`docs/publishing-layout.md`](docs/publishing-layout.md).
 
 ## Build Android bridge only
