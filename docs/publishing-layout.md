@@ -71,13 +71,28 @@ Some iOS adapter pods may not yet be published on CocoaPods trunk for every vers
 
 Install only the adapters you need. Core alone builds; ads for a network require that network's adapter package.
 
-## User install (git tag / tarball release)
+## User install (git tag — Internal GitHub)
+
+Requires GitHub access to `ParticleMedia/msp-unity-sdk` (Internal). Unity clones via HTTPS; sign in to GitHub (PAT / gh / credential helper) if prompted.
 
 ```json
 {
   "dependencies": {
-    "ai.themsp.unity.core": "file:../build/ai.themsp.unity.core-0.0.1-rc.0.tgz",
-    "ai.themsp.unity.adapter.nova": "file:../build/ai.themsp.unity.adapter.nova-0.0.1-rc.0.tgz"
+    "ai.themsp.unity.core": "https://github.com/ParticleMedia/msp-unity-sdk.git?path=/upm#v0.0.1-rc.1",
+    "ai.themsp.unity.adapter.nova": "https://github.com/ParticleMedia/msp-unity-sdk.git?path=/packages/adapter-nova#v0.0.1-rc.1"
+  }
+}
+```
+
+Use the same tag for every package. Bump by publishing a matching `v*` tag on `main`, then update the `#v…` fragments.
+
+## User install (tarball)
+
+```json
+{
+  "dependencies": {
+    "ai.themsp.unity.core": "file:../build/ai.themsp.unity.core-0.0.1-rc.1.tgz",
+    "ai.themsp.unity.adapter.nova": "file:../build/ai.themsp.unity.adapter.nova-0.0.1-rc.1.tgz"
   }
 }
 ```

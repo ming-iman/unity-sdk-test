@@ -1,18 +1,20 @@
 {
   "dependencies": {
     "ai.themsp.unity.adapter.nova": {
-      "version": "file:../../packages/adapter-nova",
+      "version": "https://github.com/ParticleMedia/msp-unity-sdk.git?path=/packages/adapter-nova#v0.0.1-rc.1",
       "depth": 0,
-      "source": "local",
+      "source": "git",
       "dependencies": {
-        "ai.themsp.unity.core": "0.0.1-rc.0"
-      }
+        "ai.themsp.unity.core": "0.0.1-rc.1"
+      },
+      "hash": "4854d1e4451deef3b88f1528d7c699569aa33303"
     },
     "ai.themsp.unity.core": {
-      "version": "file:../../upm",
+      "version": "https://github.com/ParticleMedia/msp-unity-sdk.git?path=/upm#v0.0.1-rc.1",
       "depth": 0,
-      "source": "local",
-      "dependencies": {}
+      "source": "git",
+      "dependencies": {},
+      "hash": "4854d1e4451deef3b88f1528d7c699569aa33303"
     },
     "com.google.external-dependency-manager": {
       "version": "https://github.com/googlesamples/unity-jar-resolver.git?path=upm",

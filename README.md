@@ -34,14 +34,14 @@ msp-unity-sdk/
 
 Open `demo/` as a Unity project (Unity 6000.x tested).
 
-The demo references local packages via `Packages/manifest.json`:
+The demo resolves MSP packages from the Internal GitHub tag (remote UPM):
 
 ```json
-"ai.themsp.unity.core": "file:../../upm",
-"ai.themsp.unity.adapter.nova": "file:../../packages/adapter-nova"
+"ai.themsp.unity.core": "https://github.com/ParticleMedia/msp-unity-sdk.git?path=/upm#v0.0.1-rc.1",
+"ai.themsp.unity.adapter.nova": "https://github.com/ParticleMedia/msp-unity-sdk.git?path=/packages/adapter-nova#v0.0.1-rc.1"
 ```
 
-See `docs/publishing-layout.md` for external release layout.
+For local monorepo iteration, switch those entries back to `file:../../upm` and `file:../../packages/adapter-nova`. See `docs/publishing-layout.md` for install options.
 
 ### 2. Build Android bridge AAR
 
