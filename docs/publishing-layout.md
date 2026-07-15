@@ -76,8 +76,8 @@ Install only the adapters you need. Core alone builds; ads for a network require
 ```json
 {
   "dependencies": {
-    "ai.themsp.unity.core": "https://github.com/ming-iman/unity-sdk-test.git?path=/upm#v0.0.1-rc.1",
-    "ai.themsp.unity.adapter.nova": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-nova#v0.0.1-rc.1"
+    "ai.themsp.unity.core": "https://github.com/ming-iman/unity-sdk-test.git?path=/upm#v0.0.1-rc.2",
+    "ai.themsp.unity.adapter.nova": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-nova#v0.0.1-rc.2"
   }
 }
 ```
@@ -89,8 +89,8 @@ Use the same tag for every package. Push matching `v*` tags to the remote that h
 ```json
 {
   "dependencies": {
-    "ai.themsp.unity.core": "file:../build/ai.themsp.unity.core-0.0.1-rc.1.tgz",
-    "ai.themsp.unity.adapter.nova": "file:../build/ai.themsp.unity.adapter.nova-0.0.1-rc.1.tgz"
+    "ai.themsp.unity.core": "file:../build/ai.themsp.unity.core-0.0.1-rc.2.tgz",
+    "ai.themsp.unity.adapter.nova": "file:../build/ai.themsp.unity.adapter.nova-0.0.1-rc.2.tgz"
   }
 }
 ```
@@ -158,7 +158,7 @@ Add new packages under `packages/adapter-<name>/` using the same pattern:
 1. Set Unity package version in **one place**: `tools/release/VERSION`
 2. Verify public native versions (`MSPUnityNativeVersions`) match Maven Central / CocoaPods trunk
 3. Run `tools/release/build-packages.sh` (syncs versions into all `package.json`, builds Android bridge AAR, validates, packs tgz files into `build/`)
-4. Tag repo to match `VERSION` (e.g. `v0.0.1-rc.1`) and push the tag to remotes used for git-link installs
+4. Tag repo to match `VERSION` (e.g. `v0.0.1-rc.2`) and push the tag to remotes used for git-link installs
 5. Validate in a clean Unity project:
    - core only (should build, but no network-specific ads)
    - core + selected adapters (should load/show for those networks)
