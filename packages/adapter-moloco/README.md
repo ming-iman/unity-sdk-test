@@ -24,3 +24,5 @@ Add both packages to `Packages/manifest.json`:
 ## Usage
 
 Put `ad_network` in `MSPAdRequest.TestParams` (e.g. `request.TestParams["ad_network"] = "msp_moloco"`).
+
+On iOS, installing this package also wires `MolocoBidTokenProviderHelper` into `MSP.shared.bidLoaderProvider` when the adapter activates (same as the native iOS demo). Android resolves `MolocoBidTokenProvider` automatically when the Maven adapter is on the classpath.

@@ -5,6 +5,8 @@ import MSPMolocoAdapter
 @_cdecl("msp_unity_register_adapter_moloco")
 public func msp_unity_register_adapter_moloco() {
   MSPUnityEntry.registerManager(MolocoManager())
+  // Same as native iOS demo: wire bid-token provider when Moloco adapter is linked.
+  MSP.shared.bidLoaderProvider.molocoBidTokenProvider = MolocoBidTokenProviderHelper()
 }
 
 @objc(MSPUnityMolocoBootstrap)

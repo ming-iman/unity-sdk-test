@@ -24,3 +24,5 @@ Add both packages to `Packages/manifest.json`:
 ## Usage
 
 Put `ad_network` in `MSPAdRequest.TestParams` (e.g. `request.TestParams["ad_network"] = "msp_google"`).
+
+On iOS, installing this package also wires `GoogleQueryInfoFetcherHelper` into `MSP.shared.bidLoaderProvider` when the adapter activates (same as the native iOS demo). Android resolves `GoogleBidTokenProvider` automatically when the Maven adapter is on the classpath.

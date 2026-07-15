@@ -125,6 +125,8 @@ Each adapter package:
 4. iOS export generates Podfile from registry and runs `pod install`
 5. Android EDM resolves core + selected adapter artifacts from Maven Central
 
+On iOS, when the Google / Facebook / Moloco / Liftoff Unity adapter packages are installed, their native bootstrap also assigns the corresponding bid-token helpers on `MSP.shared.bidLoaderProvider` (same wiring as the native iOS demo). Android adapter AARs expose token providers that `BidLoaderProviderImp` loads by reflection.
+
 ## Prerequisites for external users
 
 ### Android
