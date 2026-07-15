@@ -5,7 +5,10 @@
 + (void)setLogLevel:(int32_t)level;
 + (BOOL)activateAdapterWithAdapterId:(NSString *)adapterId bootstrapClassName:(NSString *)bootstrapClassName;
 + (BOOL)initializeWithPrebidApiKey:(NSString *)prebidApiKey orgId:(int32_t)orgId appId:(int32_t)appId isInTestMode:(BOOL)isInTestMode;
-+ (BOOL)loadAdWithPlacementId:(NSString *)placementId requestToken:(NSString *)requestToken adNetwork:(NSString *)adNetwork;
++ (BOOL)loadAdWithPlacementId:(NSString *)placementId
+                 requestToken:(NSString *)requestToken
+             customParamsJson:(NSString *)customParamsJson
+               testParamsJson:(NSString *)testParamsJson;
 + (BOOL)hasAdWithPlacementId:(NSString *)placementId requestToken:(NSString *)requestToken;
 + (BOOL)showAdWithPlacementId:(NSString *)placementId requestToken:(NSString *)requestToken;
 @end
@@ -30,11 +33,20 @@ extern "C" void msp_unity_initialize(const char* prebidApiKey, int orgId, int ap
     [MSPUnityEntry initializeWithPrebidApiKey:apiKey orgId:(int32_t)orgId appId:(int32_t)appId isInTestMode:isInTestMode];
 }
 
-extern "C" void msp_unity_load_ad(const char* placementId, const char* requestToken, const char* adNetwork) {
+extern "C" void msp_unity_load_ad(
+    const char* placementId,
+    const char* requestToken,
+    const char* customParamsJson,
+    const char* testParamsJson
+) {
     NSString *pid = placementId ? [NSString stringWithUTF8String:placementId] : @"";
     NSString *token = requestToken ? [NSString stringWithUTF8String:requestToken] : @"";
-    NSString *network = adNetwork ? [NSString stringWithUTF8String:adNetwork] : @"";
-    [MSPUnityEntry loadAdWithPlacementId:pid requestToken:token adNetwork:network];
+    NSString *customJson = customParamsJson ? [NSString stringWithUTF8String:customParamsJson] : @"{}";
+    NSString *testJson = testParamsJson ? [NSString stringWithUTF8String:testParamsJson] : @"{}";
+    [MSPUnityEntry loadAdWithPlacementId:pid
+                            requestToken:token
+                        customParamsJson:customJson
+                          testParamsJson:testJson];
 }
 
 extern "C" bool msp_unity_get_ad(const char* placementId, const char* requestToken) {

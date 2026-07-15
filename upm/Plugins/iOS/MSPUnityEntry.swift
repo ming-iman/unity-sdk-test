@@ -153,7 +153,12 @@ public final class MSPUnityEntry: NSObject {
     }
 
     @discardableResult
-    public static func loadAd(placementId: String, requestToken: String, adNetwork: String?) -> Bool {
+    public static func loadAd(
+        placementId: String,
+        requestToken: String,
+        customParamsJson: String?,
+        testParamsJson: String?
+    ) -> Bool {
         guard !placementId.isEmpty, !requestToken.isEmpty else {
             sendUnityMessage(
                 method: onErrorMethod,
@@ -169,16 +174,17 @@ public final class MSPUnityEntry: NSObject {
             loader: loader
         )
         adListeners[requestToken] = listener
-        let network = (adNetwork?.isEmpty == false ? adNetwork : "msp_nova") ?? "msp_nova"
+        let customParams = parseJsonObject(customParamsJson)
+        let testParams = parseJsonObject(testParamsJson)
         let request = AdRequest(
-            customParams: [:],
+            customParams: customParams,
             geo: nil,
             context: nil,
             adaptiveBannerSize: nil,
             adSize: nil,
             placementId: placementId,
             adFormat: .interstitial,
-            testParams: ["ad_network": network]
+            testParams: testParams
         )
 
         adLoaders[requestToken] = loader
@@ -188,6 +194,17 @@ public final class MSPUnityEntry: NSObject {
             adRequest: request
         )
         return true
+    }
+
+    private static func parseJsonObject(_ json: String?) -> [String: Any] {
+        guard let json = json?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !json.isEmpty,
+              let data = json.data(using: .utf8),
+              let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else {
+            return [:]
+        }
+        return object
     }
 
     public static func hasAd(placementId _: String, requestToken: String) -> Bool {

@@ -36,9 +36,10 @@ namespace MSP.Unity.Internal
             var token = $"{placementId}-{Guid.NewGuid():N}";
             placementTokens[placementId] = token;
             MSPUnityListener.RegisterLoadListener(token, placementId, adListener);
-            var adNetwork = ResolveAdNetwork(adRequest);
+            var customJson = MSPParamsJson.Serialize(adRequest?.CustomParams);
+            var testJson = MSPParamsJson.Serialize(adRequest?.TestParams);
             using var bridge = new AndroidJavaClass(BridgeClassName);
-            bridge.CallStatic("loadAd", placementId, token, adNetwork);
+            bridge.CallStatic("loadAd", placementId, token, customJson, testJson);
         }
 
         public MSPAd GetAd(string placementId, MSPAdListener adListener)
@@ -66,28 +67,6 @@ namespace MSP.Unity.Internal
         {
             using var bridge = new AndroidJavaClass(BridgeClassName);
             bridge.CallStatic("showAd", placementId, nativeAdToken);
-        }
-
-        private static string ResolveAdNetwork(MSPAdRequest adRequest)
-        {
-            if (adRequest == null)
-            {
-                return null;
-            }
-
-            if (!string.IsNullOrWhiteSpace(adRequest.AdNetwork))
-            {
-                return adRequest.AdNetwork;
-            }
-
-            if (adRequest.CustomParams != null &&
-                adRequest.CustomParams.TryGetValue("ad_network", out var value) &&
-                value != null)
-            {
-                return value.ToString();
-            }
-
-            return null;
         }
     }
 }

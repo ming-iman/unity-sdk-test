@@ -23,4 +23,4 @@ Add both packages to `Packages/manifest.json`:
 
 ## Usage
 
-Request ads with `ad_network = msp_mobilefuse` (or set `MSPAdRequest.AdNetwork`).
+Put `ad_network` in `MSPAdRequest.TestParams` (e.g. `request.TestParams["ad_network"] = "msp_mobilefuse"`).

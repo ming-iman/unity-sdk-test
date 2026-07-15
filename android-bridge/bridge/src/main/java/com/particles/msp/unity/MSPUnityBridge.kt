@@ -27,8 +27,6 @@ object MSPUnityBridge {
     private const val ON_EVENT = "OnNativeEvent"
     private const val ON_ERROR = "OnNativeError"
     private const val DEMO_INTERSTITIAL_PLACEMENT = "demo-android-interstitial"
-    // Default only when caller does not provide ad_network.
-    private const val DEMO_TEST_AD_NETWORK = "msp_nova"
 
     private val adLoaders = ConcurrentHashMap<String, AdLoader>()
     private val adListeners = ConcurrentHashMap<String, UnityAdListener>()
@@ -117,13 +115,20 @@ object MSPUnityBridge {
     }
 
     @JvmStatic
-    fun loadAd(placementId: String, requestToken: String, adNetwork: String?) {
+    fun loadAd(
+        placementId: String,
+        requestToken: String,
+        customParamsJson: String?,
+        testParamsJson: String?,
+    ) {
         val context = currentContext() ?: return
         val resolvedPlacementId = if (placementId.isBlank()) DEMO_INTERSTITIAL_PLACEMENT else placementId
-        val resolvedAdNetwork = adNetwork?.trim().takeUnless { it.isNullOrEmpty() } ?: DEMO_TEST_AD_NETWORK
+        val customParams = jsonToMap(customParamsJson)
+        val testParams = jsonToMap(testParamsJson)
         Log.i(
             TAG,
-            "loadAd called. placementId=$resolvedPlacementId requestToken=$requestToken adNetwork=$resolvedAdNetwork"
+            "loadAd called. placementId=$resolvedPlacementId requestToken=$requestToken " +
+                "customParams=$customParams testParams=$testParams"
         )
         readyAds.remove(requestToken)
         val adLoader = AdLoader()
@@ -134,12 +139,8 @@ object MSPUnityBridge {
         val adRequest = AdRequest.Builder(AdFormat.INTERSTITIAL)
             .setContext(context)
             .setPlacement(resolvedPlacementId)
-            .setTestParams(
-                mapOf(
-                    "test_ad" to true,
-                    "ad_network" to resolvedAdNetwork,
-                )
-            )
+            .setCustomParams(customParams)
+            .setTestParams(testParams)
             .build()
 
         adLoader.loadAd(resolvedPlacementId, adListener, adRequest)
@@ -148,7 +149,44 @@ object MSPUnityBridge {
     @JvmStatic
     fun loadAd(placementId: String, requestToken: String) {
         // Backward-compatible overload for older Unity C# layer.
-        loadAd(placementId, requestToken, null)
+        loadAd(placementId, requestToken, null, null)
+    }
+
+    private fun jsonToMap(json: String?): Map<String, Any> {
+        if (json.isNullOrBlank()) {
+            return emptyMap()
+        }
+        return try {
+            jsonObjectToMap(JSONObject(json))
+        } catch (t: Throwable) {
+            Log.w(TAG, "Failed to parse params JSON: ${t.message}")
+            emptyMap()
+        }
+    }
+
+    private fun jsonObjectToMap(obj: JSONObject): Map<String, Any> {
+        val result = linkedMapOf<String, Any>()
+        val keys = obj.keys()
+        while (keys.hasNext()) {
+            val key = keys.next()
+            result[key] = jsonValueToAny(obj.get(key))
+        }
+        return result
+    }
+
+    private fun jsonValueToAny(value: Any?): Any {
+        return when (value) {
+            null, JSONObject.NULL -> ""
+            is JSONObject -> jsonObjectToMap(value)
+            is org.json.JSONArray -> {
+                val list = ArrayList<Any>(value.length())
+                for (i in 0 until value.length()) {
+                    list.add(jsonValueToAny(value.get(i)))
+                }
+                list
+            }
+            else -> value
+        }
     }
 
     @JvmStatic

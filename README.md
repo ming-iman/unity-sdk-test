@@ -123,7 +123,11 @@ MSP.Initialize(new MSPInitializationParameters
 }, (success, message) => { /* … */ });
 
 var loader = new MSPAdLoader();
-loader.LoadAd(placementId, listener, new MSPAdRequest(placementId, "msp_nova"));
+var request = new MSPAdRequest(placementId);
+request.TestParams["test_ad"] = true;
+request.TestParams["ad_network"] = "msp_nova";
+// request.CustomParams["your_key"] = "your_value";
+loader.LoadAd(placementId, listener, request);
 var ad = loader.GetAd(placementId) as MSPInterstitialAd;
 ad?.Show();
 ```

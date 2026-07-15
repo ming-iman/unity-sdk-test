@@ -23,7 +23,11 @@ namespace MSP.Unity.Internal
         private static extern void msp_unity_initialize(string prebidApiKey, int orgId, int appId, bool isInTestMode);
 
         [DllImport("__Internal")]
-        private static extern void msp_unity_load_ad(string placementId, string requestToken, string adNetwork);
+        private static extern void msp_unity_load_ad(
+            string placementId,
+            string requestToken,
+            string customParamsJson,
+            string testParamsJson);
 
         [DllImport("__Internal")]
         private static extern bool msp_unity_get_ad(string placementId, string requestToken);
@@ -70,8 +74,9 @@ namespace MSP.Unity.Internal
             placementTokens[placementId] = token;
             MSPUnityListener.RegisterLoadListener(token, placementId, adListener);
 #if UNITY_IOS && !UNITY_EDITOR
-            var adNetwork = ResolveAdNetwork(adRequest);
-            msp_unity_load_ad(placementId, token, adNetwork ?? string.Empty);
+            var customJson = MSPParamsJson.Serialize(adRequest?.CustomParams);
+            var testJson = MSPParamsJson.Serialize(adRequest?.TestParams);
+            msp_unity_load_ad(placementId, token, customJson, testJson);
 #endif
         }
 
@@ -118,27 +123,5 @@ namespace MSP.Unity.Internal
             }
         }
 #endif
-
-        private static string ResolveAdNetwork(MSPAdRequest adRequest)
-        {
-            if (adRequest == null)
-            {
-                return null;
-            }
-
-            if (!string.IsNullOrWhiteSpace(adRequest.AdNetwork))
-            {
-                return adRequest.AdNetwork;
-            }
-
-            if (adRequest.CustomParams != null &&
-                adRequest.CustomParams.TryGetValue("ad_network", out var value) &&
-                value != null)
-            {
-                return value.ToString();
-            }
-
-            return null;
-        }
     }
 }
