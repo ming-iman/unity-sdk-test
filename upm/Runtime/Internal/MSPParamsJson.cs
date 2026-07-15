@@ -21,6 +21,31 @@ namespace MSP.Unity.Internal
             return builder.ToString();
         }
 
+        private static void WriteObject(StringBuilder builder, IDictionary<string, object> map)
+        {
+            builder.Append('{');
+            var first = true;
+            foreach (var entry in map)
+            {
+                if (entry.Key == null)
+                {
+                    continue;
+                }
+
+                if (!first)
+                {
+                    builder.Append(',');
+                }
+
+                first = false;
+                WriteString(builder, entry.Key);
+                builder.Append(':');
+                WriteValue(builder, entry.Value);
+            }
+
+            builder.Append('}');
+        }
+
         private static void WriteObject(StringBuilder builder, IDictionary map)
         {
             builder.Append('{');
@@ -61,6 +86,9 @@ namespace MSP.Unity.Internal
                     return;
                 case bool flag:
                     builder.Append(flag ? "true" : "false");
+                    return;
+                case IDictionary<string, object> typedDictionary:
+                    WriteObject(builder, typedDictionary);
                     return;
                 case IDictionary dictionary:
                     WriteObject(builder, dictionary);
