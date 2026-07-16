@@ -1,7 +1,7 @@
 {
   "name": "ai.themsp.unity.adapter.mobilefuse",
   "displayName": "MSP Unity Adapter - MobileFuse",
-  "version": "0.0.1-rc.5",
+  "version": "0.0.1",
   "unity": "2021.3",
   "description": "Optional MobileFuse adapter package for MSP Unity SDK.",
   "keywords": [
@@ -11,6 +11,6 @@
     "adapter"
   ],
   "dependencies": {
-    "ai.themsp.unity.core": "0.0.1-rc.5"
+    "ai.themsp.unity.core": "0.0.1"
   }
 }
