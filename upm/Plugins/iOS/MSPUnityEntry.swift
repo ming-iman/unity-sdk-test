@@ -3,10 +3,77 @@ import Foundation
 import MSPCore
 import MSPiOSCore
 import ObjectiveC
+import PrebidMobile
 import UIKit
 
 @_silgen_name("UnitySendMessage")
 private func UnitySendMessage(_ obj: UnsafePointer<CChar>, _ method: UnsafePointer<CChar>, _ msg: UnsafePointer<CChar>)
+
+private final class UnityInitializationParameters: InitializationParameters {
+    let prebidAPIKey: String
+    let sourceApp: String?
+    let prebidHostUrl: String
+    let parameters: [String: Any]
+    let ageRestrictedUser: Bool
+    let testMode: Bool
+
+    init(
+        prebidAPIKey: String,
+        sourceApp: String?,
+        prebidHostUrl: String,
+        parameters: [String: Any],
+        ageRestrictedUser: Bool,
+        testMode: Bool
+    ) {
+        self.prebidAPIKey = prebidAPIKey
+        self.sourceApp = sourceApp
+        self.prebidHostUrl = prebidHostUrl
+        self.parameters = parameters
+        self.ageRestrictedUser = ageRestrictedUser
+        self.testMode = testMode
+    }
+
+    func getPrebidAPIKey() -> String { prebidAPIKey }
+    func getPrebidHostUrl() -> String { prebidHostUrl }
+    func getAppStoreId() -> String? { sourceApp }
+    func getParameters() -> [String: Any]? { parameters }
+    func isAgeRestrictedUser() -> Bool { ageRestrictedUser }
+    func isInTestMode() -> Bool { testMode }
+}
+
+private struct UnityInitializationConfig {
+    let prebidAPIKey: String
+    let sourceApp: String
+    let orgId: Int64
+    let appId: Int64
+    let prebidHost: String
+    let hasUserConsent: Bool
+    let isAgeRestrictedUser: Bool
+    let isDoNotSell: Bool
+    let isInTestMode: Bool
+    let consentString: String
+    let parameters: [String: Any]
+
+    var resolvedPrebidHostUrl: String {
+        guard !prebidHost.isEmpty else {
+            return MSP.shared.prebidHost + "/openrtb2/auction"
+        }
+        let normalized = prebidHost.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        return normalized.hasSuffix("/openrtb2/auction")
+            ? normalized
+            : normalized + "/openrtb2/auction"
+    }
+
+    var resolvedPrebidHostBase: String? {
+        guard !prebidHost.isEmpty else {
+            return nil
+        }
+        let normalized = prebidHost.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        return normalized.hasSuffix("/openrtb2/auction")
+            ? String(normalized.dropLast("/openrtb2/auction".count))
+            : normalized
+    }
+}
 
 @objc(MSPUnityEntry)
 @objcMembers
@@ -133,17 +200,87 @@ public final class MSPUnityEntry: NSObject {
     }
 
     @discardableResult
-    public static func initialize(prebidApiKey: String, orgId: Int32, appId: Int32, isInTestMode _: Bool) -> Bool {
-        let params = InitializationParametersImp(
-            prebidAPIKey: prebidApiKey,
-            orgId: Int64(orgId),
-            appId: Int64(appId)
+    public static func initialize(prebidApiKey: String, orgId: Int32, appId: Int32, isInTestMode: Bool) -> Bool {
+        initialize(
+            config: UnityInitializationConfig(
+                prebidAPIKey: prebidApiKey,
+                sourceApp: "",
+                orgId: Int64(orgId),
+                appId: Int64(appId),
+                prebidHost: "",
+                hasUserConsent: true,
+                isAgeRestrictedUser: false,
+                isDoNotSell: false,
+                isInTestMode: isInTestMode,
+                consentString: "",
+                parameters: [:]
+            )
         )
+    }
+
+    @discardableResult
+    public static func initialize(json: String) -> Bool {
+        guard let data = json.data(using: .utf8),
+              let object = try? JSONSerialization.jsonObject(with: data),
+              let dictionary = object as? [String: Any]
+        else {
+            sendUnityMessage(
+                method: onInitMethod,
+                payload: ["status": "FAILURE", "message": "Invalid MSP initialization JSON"]
+            )
+            return false
+        }
+
+        let config = UnityInitializationConfig(
+            prebidAPIKey: dictionary["prebidApiKey"] as? String ?? "",
+            sourceApp: dictionary["sourceApp"] as? String ?? "",
+            orgId: (dictionary["orgId"] as? NSNumber)?.int64Value ?? 0,
+            appId: (dictionary["appId"] as? NSNumber)?.int64Value ?? 0,
+            prebidHost: dictionary["prebidHost"] as? String ?? "",
+            hasUserConsent: dictionary["hasUserConsent"] as? Bool ?? true,
+            isAgeRestrictedUser: dictionary["isAgeRestrictedUser"] as? Bool ?? false,
+            isDoNotSell: dictionary["isDoNotSell"] as? Bool ?? false,
+            isInTestMode: dictionary["isInTestMode"] as? Bool ?? false,
+            consentString: dictionary["consentString"] as? String ?? "",
+            parameters: dictionary["parameters"] as? [String: Any] ?? [:]
+        )
+        return initialize(config: config)
+    }
+
+    private static func initialize(config: UnityInitializationConfig) -> Bool {
+        if let prebidHostBase = config.resolvedPrebidHostBase {
+            MSP.shared.prebidHost = prebidHostBase
+        }
+        MSP.shared.orgId = config.orgId
+        MSP.shared.appId = config.appId
+        MSP.shared.org = String(config.orgId)
+        MSP.shared.app = String(config.appId)
+        MSP.shared.prebidAPIKey = config.prebidAPIKey
+        MSPUserAgent.provider = MSP.shared
+        if !config.sourceApp.isEmpty {
+            // MSP iOS 4.5.0 only copies sourceApp from InitializationParametersImp.
+            // This bridge uses a protocol implementation so test/privacy flags can also flow.
+            Targeting.shared.sourceapp = config.sourceApp
+        }
 
         activateLinkedOptionalAdaptersIfNeeded()
         let managers = registeredManagers
         MSPLogger.shared.info(message: "[MSPUnity] Initializing MSP with \(managers.count) ad network manager(s)")
-        MSP.shared.initMSP(initParams: params, sdkInitListener: nil, adNetworkManagers: managers)
+        let unityParams = UnityInitializationParameters(
+            prebidAPIKey: config.prebidAPIKey,
+            sourceApp: config.sourceApp.isEmpty ? nil : config.sourceApp,
+            prebidHostUrl: config.resolvedPrebidHostUrl,
+            parameters: config.parameters,
+            ageRestrictedUser: config.isAgeRestrictedUser,
+            testMode: config.isInTestMode
+        )
+        MSP.shared.initMSP(initParams: unityParams, sdkInitListener: nil, adNetworkManagers: managers)
+
+        if !config.hasUserConsent || config.isDoNotSell || !config.consentString.isEmpty {
+            MSPLogger.shared.info(
+                message: "[MSPUnity] Consent fields received; MSP iOS 4.5.0 resolves them from the IAB TCF/CMP state"
+            )
+        }
 
         sendUnityMessage(
             method: onInitMethod,

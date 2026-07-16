@@ -117,8 +117,19 @@ Optional env vars:
 MSP.Initialize(new MSPInitializationParameters
 {
     PrebidApiKey = "YOUR_API_KEY",
+    SourceApp = "YOUR_IOS_APP_STORE_ID",
     OrgId = YOUR_ORG_ID,
     AppId = YOUR_APP_ID,
+    PrebidHost = "https://msp.newsbreak.com",
+    Parameters = new Dictionary<string, object>
+    {
+        ["molocoAppKey"] = "YOUR_MOLOCO_APP_KEY",  // iOS native key
+        ["moloco_app_key"] = "YOUR_MOLOCO_APP_KEY", // Android native key
+        ["prebidBidRequestTimeoutMillis"] = 30000,
+        ["customFlags"] = new[] { "one", "two" }
+    },
+    AppPackageName = "com.example.app", // Android only
+    AppVersionName = "1.0.0",           // Android only
     IsInTestMode = true
 }, (success, message) => { /* … */ });
 

@@ -8,7 +8,6 @@ import com.particles.msp.api.AdRequest
 import com.particles.msp.api.AdListener
 import com.particles.msp.api.InterstitialAd
 import com.particles.msp.api.MSPAd
-import com.particles.msp.api.MSPConstants
 import com.particles.msp.api.MSPInitListener
 import com.particles.msp.api.MSPInitStatus
 import com.particles.msp.api.MSPInitializationParameters
@@ -17,6 +16,9 @@ import com.particles.msp.util.Logger
 import com.particles.prebidadapter.MSP
 import com.unity3d.player.UnityPlayer
 import org.json.JSONObject
+import org.prebid.mobile.Host
+import org.prebid.mobile.PrebidMobile
+import org.prebid.mobile.rendering.utils.helpers.AppInfoManager
 import java.util.concurrent.ConcurrentHashMap
 
 object MSPUnityBridge {
@@ -47,57 +49,164 @@ object MSPUnityBridge {
 
     @JvmStatic
     fun initialize(prebidApiKey: String, orgId: Int, appId: Int, isInTestMode: Boolean) {
+        initialize(
+            UnityInitializationConfig(
+                prebidApiKey = prebidApiKey,
+                orgId = orgId.toLong(),
+                appId = appId.toLong(),
+                isInTestMode = isInTestMode,
+            )
+        )
+    }
+
+    @JvmStatic
+    fun initializeJson(initializationJson: String) {
+        try {
+            initialize(parseInitializationConfig(initializationJson))
+        } catch (t: Throwable) {
+            Log.e(TAG, "initializeJson failed: ${t.message}", t)
+            sendInitResult("FAILURE", t.message ?: "Invalid MSP initialization JSON")
+        }
+    }
+
+    private fun initialize(config: UnityInitializationConfig) {
         val activity = UnityPlayer.currentActivity
         if (activity == null) {
             Log.e(TAG, "initialize aborted: Unity activity is null")
+            sendInitResult("FAILURE", "Unity activity is null")
             return
         }
         val context = activity.applicationContext
-        Log.i(TAG, "initialize called. orgId=$orgId appId=$appId testMode=$isInTestMode")
-        if (isInTestMode) {
+        val orgId = config.orgId.toMspIntId("orgId")
+        val appId = config.appId.toMspIntId("appId")
+        Log.i(TAG, "initialize called. orgId=${config.orgId} appId=${config.appId} testMode=${config.isInTestMode}")
+        if (config.isInTestMode) {
             enableMesDebugLogging()
         }
         val mesInitUrl = HostConfig.getMesHostUrl(orgId).trimEnd('/') + "/v1/event/sdk_init"
         Log.i(TAG, "MES sdk_init endpoint: $mesInitUrl")
 
-        // Keep aligned with MSP Android demo profile parameters.
-        val initParamsMap = mapOf(
-            MSPConstants.INIT_PARAM_KEY_PPID to "shun-test-ppid",
-            MSPConstants.INIT_PARAM_KEY_EMAIL to "shun.j@shun.com",
-            MSPConstants.INIT_PARAM_KEY_UNITY_APP_KEY to "207789bad",
-            MSPConstants.INIT_PARAM_KEY_INMOBI_ACCOUNT_ID to "3ef8dd9e9d5b4080ad1682510980b643",
-            MSPConstants.INIT_PARAM_KEY_MINTEGRAL_APP_ID to "144002",
-            MSPConstants.INIT_PARAM_KEY_MINTEGRAL_APP_KEY to "7c22942b749fe6a6e361b675e96b3ee9",
-            MSPConstants.INIT_PARAM_KEY_PUBMATIC_PUBLISHER_ID to "156276",
-            MSPConstants.INIT_PARAM_KEY_MOLOCO_APP_KEY to "NEWSBREAK:tz5zGje2JXIAhpbZ",
-            MSPConstants.INIT_PARAM_KEY_AMAZON_APP_KEY to "369701c6-f17a-4573-b695-52aae43d960c",
-            MSPConstants.INIT_PARAM_KEY_LIFTOFF_APP_ID to "69437de9f9db799a8390058c",
-            MSPConstants.INIT_PARAM_KEY_GOOGLE_APP_ID to "ca-app-pub-3940256099942544~3347511713",
-            MSPConstants.INIT_PARAM_KEY_APPLOVIN_SDK_KEY to "6KrA5SQHFTBpGDUU4FeLIZGxGFmd1rORGfr5xlrJIMeXO8pdvuKPQO4WAfQpEZ4cXAOXoeSJJRoX0zcD4qBzak",
-            MSPConstants.INIT_PREBID_BID_REQUEST_TIMEOUT_MILLIS to 50000,
-        )
-
         // 4.5.0: consent APIs removed from AdapterParameters (resolved via IAB TCF stack).
         val initParams = object : MSPInitializationParameters {
-            override fun getPrebidAPIKey(): String = prebidApiKey
+            override fun getPrebidAPIKey(): String = config.prebidApiKey
+            @Suppress("DEPRECATION")
+            override fun getPrebidHostUrl(): String = config.resolvedPrebidHost()
             override fun getOrgId(): Int = orgId
             override fun getAppId(): Int = appId
-            override fun getParameters(): Map<String, Any> = initParamsMap
-            override fun isAgeRestrictedUser(): Boolean = false
-            override fun isInTestMode(): Boolean = isInTestMode
+            override fun getParameters(): Map<String, Any> = config.parameters
+            override fun isAgeRestrictedUser(): Boolean = config.isAgeRestrictedUser
+            override fun isInTestMode(): Boolean = config.isInTestMode
         }
         activity.runOnUiThread {
+            // Prebid's initializer reloads identity while app name is still null.
+            // Prime it first so the explicit profile overrides survive MSP.init().
+            AppInfoManager.init(context)
+            configureAndroidAppInfo(config)
+            applyPrebidHost(config.prebidHost)
             MSP.init(context, initParams, object : MSPInitListener {
                 override fun onComplete(status: MSPInitStatus, message: String) {
                     Log.i(TAG, "initialize complete. status=$status message=$message")
-                    val payload = JSONObject()
-                        .put("status", status.name)
-                        .put("message", message)
-                        .toString()
-                    UnityPlayer.UnitySendMessage(UNITY_GAME_OBJECT, ON_INIT, payload)
+                    sendInitResult(status.name, message)
                 }
             })
+            // MSP Android 4.5.0's Prebid adapter still derives its host from orgId.
+            // Restore the explicit app-profile host before any ad request is made.
+            applyPrebidHost(config.prebidHost)
         }
+    }
+
+    private data class UnityInitializationConfig(
+        val prebidApiKey: String,
+        val sourceApp: String = "",
+        val orgId: Long,
+        val appId: Long,
+        val prebidHost: String = "",
+        val hasUserConsent: Boolean = true,
+        val isAgeRestrictedUser: Boolean = false,
+        val isDoNotSell: Boolean = false,
+        val isInTestMode: Boolean = false,
+        val consentString: String = "",
+        val parameters: Map<String, Any> = emptyMap(),
+        val appPackageName: String = "",
+        val appVersionName: String = "",
+    ) {
+        fun resolvedPrebidHost(): String {
+            if (prebidHost.isBlank()) {
+                return HostConfig.getMspHostUrl(orgId.toMspIntId("orgId"))
+            }
+            val normalized = prebidHost.trimEnd('/')
+            return if (normalized.endsWith("/openrtb2/auction")) {
+                normalized
+            } else {
+                "$normalized/openrtb2/auction"
+            }
+        }
+    }
+
+    private fun parseInitializationConfig(json: String): UnityInitializationConfig {
+        val obj = JSONObject(json)
+        val parameters = obj.optJSONObject("parameters")?.let(::jsonObjectToMap) ?: emptyMap()
+        return UnityInitializationConfig(
+            prebidApiKey = obj.optString("prebidApiKey"),
+            sourceApp = obj.optString("sourceApp"),
+            orgId = obj.optLong("orgId"),
+            appId = obj.optLong("appId"),
+            prebidHost = obj.optString("prebidHost"),
+            hasUserConsent = obj.optBoolean("hasUserConsent", true),
+            isAgeRestrictedUser = obj.optBoolean("isAgeRestrictedUser"),
+            isDoNotSell = obj.optBoolean("isDoNotSell"),
+            isInTestMode = obj.optBoolean("isInTestMode"),
+            consentString = obj.optString("consentString"),
+            parameters = parameters,
+            appPackageName = obj.optString("appPackageName"),
+            appVersionName = obj.optString("appVersionName"),
+        )
+    }
+
+    private fun Long.toMspIntId(name: String): Int {
+        require(this in Int.MIN_VALUE.toLong()..Int.MAX_VALUE.toLong()) {
+            "$name=$this exceeds the Int range supported by MSP Android 4.5.0"
+        }
+        return toInt()
+    }
+
+    private fun configureAndroidAppInfo(config: UnityInitializationConfig) {
+        if (config.appPackageName.isNotBlank()) {
+            AppInfoManager.setPackageName(config.appPackageName)
+        }
+        if (config.appVersionName.isNotBlank()) {
+            try {
+                val versionField = AppInfoManager::class.java.getDeclaredField("sAppVersion")
+                versionField.isAccessible = true
+                versionField.set(null, config.appVersionName)
+            } catch (t: Throwable) {
+                Log.w(TAG, "Unable to override Android app version: ${t.message}")
+            }
+        }
+        if (config.sourceApp.isNotBlank()) {
+            Log.d(TAG, "sourceApp received; MSP Android 4.5.0 has no source-app initialization API")
+        }
+        if (!config.hasUserConsent || config.isDoNotSell || config.consentString.isNotBlank()) {
+            Log.d(TAG, "Consent fields received; MSP Android 4.5.0 resolves them from the IAB TCF/CMP state")
+        }
+    }
+
+    private fun applyPrebidHost(prebidHost: String) {
+        if (prebidHost.isBlank()) {
+            return
+        }
+        Host.CUSTOM.hostUrl = prebidHost.trimEnd('/').let {
+            if (it.endsWith("/openrtb2/auction")) it else "$it/openrtb2/auction"
+        }
+        PrebidMobile.setPrebidServerHost(Host.CUSTOM)
+    }
+
+    private fun sendInitResult(status: String, message: String) {
+        val payload = JSONObject()
+            .put("status", status)
+            .put("message", message)
+            .toString()
+        UnityPlayer.UnitySendMessage(UNITY_GAME_OBJECT, ON_INIT, payload)
     }
 
     private fun enableMesDebugLogging() {
@@ -174,7 +283,7 @@ object MSPUnityBridge {
 
     private fun jsonValueToAny(value: Any?): Any {
         return when (value) {
-            null, JSONObject.NULL -> ""
+            null, JSONObject.NULL -> JSONObject.NULL
             is JSONObject -> jsonObjectToMap(value)
             is org.json.JSONArray -> {
                 val list = ArrayList<Any>(value.length())

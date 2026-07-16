@@ -6,9 +6,34 @@ using System.Text;
 
 namespace MSP.Unity.Internal
 {
-    /// <summary>Minimal JSON object encoder for bridge params (string/bool/number/null/nested maps).</summary>
+    /// <summary>Minimal JSON encoder for bridge params (string/bool/number/null/maps/arrays).</summary>
     internal static class MSPParamsJson
     {
+        internal static string Serialize(MSPInitializationParameters parameters)
+        {
+            if (parameters == null)
+            {
+                throw new ArgumentNullException(nameof(parameters));
+            }
+
+            return Serialize(new Dictionary<string, object>
+            {
+                { "prebidApiKey", parameters.PrebidApiKey },
+                { "sourceApp", parameters.SourceApp },
+                { "orgId", parameters.OrgId },
+                { "appId", parameters.AppId },
+                { "prebidHost", parameters.PrebidHost },
+                { "hasUserConsent", parameters.HasUserConsent },
+                { "isAgeRestrictedUser", parameters.IsAgeRestrictedUser },
+                { "isDoNotSell", parameters.IsDoNotSell },
+                { "isInTestMode", parameters.IsInTestMode },
+                { "consentString", parameters.ConsentString },
+                { "parameters", parameters.Parameters },
+                { "appPackageName", parameters.AppPackageName },
+                { "appVersionName", parameters.AppVersionName }
+            });
+        }
+
         internal static string Serialize(IDictionary<string, object> map)
         {
             if (map == null || map.Count == 0)

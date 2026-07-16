@@ -5,6 +5,7 @@
 + (void)setLogLevel:(int32_t)level;
 + (BOOL)activateAdapterWithAdapterId:(NSString *)adapterId bootstrapClassName:(NSString *)bootstrapClassName;
 + (BOOL)initializeWithPrebidApiKey:(NSString *)prebidApiKey orgId:(int32_t)orgId appId:(int32_t)appId isInTestMode:(BOOL)isInTestMode;
++ (BOOL)initializeWithJson:(NSString *)json;
 + (BOOL)loadAdWithPlacementId:(NSString *)placementId
                  requestToken:(NSString *)requestToken
              customParamsJson:(NSString *)customParamsJson
@@ -31,6 +32,11 @@ extern "C" void msp_unity_activate_adapter(const char* adapterId, const char* bo
 extern "C" void msp_unity_initialize(const char* prebidApiKey, int orgId, int appId, bool isInTestMode) {
     NSString *apiKey = prebidApiKey ? [NSString stringWithUTF8String:prebidApiKey] : @"";
     [MSPUnityEntry initializeWithPrebidApiKey:apiKey orgId:(int32_t)orgId appId:(int32_t)appId isInTestMode:isInTestMode];
+}
+
+extern "C" void msp_unity_initialize_json(const char* initializationJson) {
+    NSString *json = initializationJson ? [NSString stringWithUTF8String:initializationJson] : @"{}";
+    [MSPUnityEntry initializeWithJson:json];
 }
 
 extern "C" void msp_unity_load_ad(

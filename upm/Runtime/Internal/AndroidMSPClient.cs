@@ -27,8 +27,9 @@ namespace MSP.Unity.Internal
         public void Initialize(MSPInitializationParameters initParams, Action<bool, string> onComplete)
         {
             MSPUnityListener.SetPendingInitCallback(onComplete);
+            var initializationJson = MSPParamsJson.Serialize(initParams);
             using var bridge = new AndroidJavaClass(BridgeClassName);
-            bridge.CallStatic("initialize", initParams.PrebidApiKey, initParams.OrgId, initParams.AppId, initParams.IsInTestMode);
+            bridge.CallStatic("initializeJson", initializationJson);
         }
 
         public void LoadAd(string placementId, MSPAdRequest adRequest, MSPAdListener adListener)

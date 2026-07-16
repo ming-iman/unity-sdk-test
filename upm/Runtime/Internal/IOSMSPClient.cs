@@ -20,7 +20,7 @@ namespace MSP.Unity.Internal
         private static extern void msp_unity_activate_adapter(string adapterId, string bootstrapClassName);
 
         [DllImport("__Internal")]
-        private static extern void msp_unity_initialize(string prebidApiKey, int orgId, int appId, bool isInTestMode);
+        private static extern void msp_unity_initialize_json(string initializationJson);
 
         [DllImport("__Internal")]
         private static extern void msp_unity_load_ad(
@@ -62,7 +62,7 @@ namespace MSP.Unity.Internal
             MSPUnityListener.SetPendingInitCallback(onComplete);
 #if UNITY_IOS && !UNITY_EDITOR
             ActivateIosAdapters();
-            msp_unity_initialize(initParams.PrebidApiKey, initParams.OrgId, initParams.AppId, initParams.IsInTestMode);
+            msp_unity_initialize_json(MSPParamsJson.Serialize(initParams));
 #else
             onComplete?.Invoke(true, "MSP iOS init called.");
 #endif
