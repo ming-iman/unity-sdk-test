@@ -1,16 +1,16 @@
 {
   "dependencies": {
     "ai.themsp.unity.adapter.nova": {
-      "version": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-nova#v0.0.1-rc.4",
+      "version": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-nova#v0.0.1-rc.5",
       "depth": 0,
       "source": "git",
       "dependencies": {
-        "ai.themsp.unity.core": "0.0.1-rc.4"
+        "ai.themsp.unity.core": "0.0.1-rc.5"
       },
       "hash": "3d7f27dcb2a88b534000c5e91277ad887c3cc5fa"
     },
     "ai.themsp.unity.core": {
-      "version": "https://github.com/ming-iman/unity-sdk-test.git?path=/upm#v0.0.1-rc.4",
+      "version": "https://github.com/ming-iman/unity-sdk-test.git?path=/upm#v0.0.1-rc.5",
       "depth": 0,
       "source": "git",
       "dependencies": {},
