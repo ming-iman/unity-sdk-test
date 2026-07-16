@@ -17,12 +17,12 @@ Add both packages to `Packages/manifest.json`:
 
 ## What this package adds
 
-- Android (Maven Central): `ai.themsp:facebook-adapter:4.0.0`
-- iOS (CocoaPods): `MSPFacebookAdapter` `4.0.9`
+- Android (Maven Central): `ai.themsp:facebook-adapter:4.5.0`
+- iOS (CocoaPods): `MSPFacebookAdapter` `4.5.0`
 - iOS bootstrap registration for `FacebookManager`
 
 ## Usage
 
-Put `ad_network` in `MSPAdRequest.TestParams` (e.g. `request.TestParams["ad_network"] = "msp_facebook"`).
+Put `ad_network` in `MSPAdRequest.TestParams` (e.g. `request.TestParams["ad_network"] = "msp_fb"`).
 
 On iOS, installing this package also wires `FacebookBidTokenProviderHelper` into `MSP.shared.bidLoaderProvider` when the adapter activates (same as the native iOS demo). Android resolves `FacebookBidTokenProvider` automatically when the Maven adapter is on the classpath.

@@ -77,15 +77,13 @@ object MSPUnityBridge {
             MSPConstants.INIT_PREBID_BID_REQUEST_TIMEOUT_MILLIS to 50000,
         )
 
+        // 4.5.0: consent APIs removed from AdapterParameters (resolved via IAB TCF stack).
         val initParams = object : MSPInitializationParameters {
             override fun getPrebidAPIKey(): String = prebidApiKey
             override fun getOrgId(): Int = orgId
             override fun getAppId(): Int = appId
-            override fun getConsentString(): String = ""
             override fun getParameters(): Map<String, Any> = initParamsMap
-            override fun hasUserConsent(): Boolean = true
             override fun isAgeRestrictedUser(): Boolean = false
-            override fun isDoNotSell(): Boolean = false
             override fun isInTestMode(): Boolean = isInTestMode
         }
         activity.runOnUiThread {

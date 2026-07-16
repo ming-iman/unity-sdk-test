@@ -24,5 +24,5 @@ Publishing layout: see [../docs/publishing-layout.md](../docs/publishing-layout.
 
 - Interstitial MVP on Android / iOS
 - Modular adapters under `packages/adapter-*`
-- Public native deps: Maven Central (Android `4.0.0`) + CocoaPods trunk (iOS `4.0.9`)
+- Public native deps: Maven Central (Android `4.5.0`) + CocoaPods trunk (iOS `4.5.0`)
 - Editor mock flow for Play Mode without native SDKs

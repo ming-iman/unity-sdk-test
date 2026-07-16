@@ -24,8 +24,8 @@ This document describes the publishable layout for MSP Unity SDK and optional ad
 
 | Platform | Source | Version pin |
 |---|---|---|
-| Android | [Maven Central](https://central.sonatype.com/search?namespace=ai.themsp) (`ai.themsp:*`) | `4.0.0` |
-| iOS | [CocoaPods trunk](https://cocoapods.org) (`MSPCore`, adapter pods, …) | `4.0.9` |
+| Android | [Maven Central](https://central.sonatype.com/search?namespace=ai.themsp) (`ai.themsp:*`) | `4.5.0` |
+| iOS | [CocoaPods trunk](https://cocoapods.org) (`MSPCore`, adapter pods, …) | `4.5.0` |
 
 Version pins live in `upm/Runtime/Adapter/MSPUnityNativeVersions.cs`.
 

@@ -17,8 +17,8 @@ Add both packages to `Packages/manifest.json`:
 
 ## What this package adds
 
-- Android (Maven Central): `ai.themsp:mintegral-adapter:4.0.0`
-- iOS (CocoaPods): `MintegralAdapter` `4.0.9`
+- Android (Maven Central): `ai.themsp:mintegral-adapter:4.5.0`
+- iOS (CocoaPods): `MintegralAdapter` `4.5.0`
 - iOS bootstrap registration for `MintegralManager`
 
 ## Usage

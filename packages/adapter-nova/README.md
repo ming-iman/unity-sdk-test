@@ -17,8 +17,8 @@ Add both packages to `Packages/manifest.json`:
 
 ## What this package adds
 
-- Android (Maven Central): `ai.themsp:nova-adapter:4.0.0`
-- iOS (CocoaPods trunk): `MSPNovaAdapter` `4.0.9` (includes `NovaCore` xcframework)
+- Android (Maven Central): `ai.themsp:nova-adapter:4.5.0`
+- iOS (CocoaPods trunk): `MSPNovaAdapter` `4.5.0` (includes `NovaCore` xcframework)
 - iOS bootstrap registration for `NovaManager`
 
 ## Usage

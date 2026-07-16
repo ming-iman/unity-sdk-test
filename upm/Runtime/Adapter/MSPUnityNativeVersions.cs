@@ -7,8 +7,8 @@ namespace MSP.Unity.Adapter
     /// </summary>
     public static class MSPUnityNativeVersions
     {
-        public const string AndroidMavenVersion = "4.0.0";
-        public const string IosPodVersion = "4.0.9";
+        public const string AndroidMavenVersion = "4.5.0";
+        public const string IosPodVersion = "4.5.0";
         public const string SwiftProtobufPodVersion = "~> 1.28.2";
     }
 }

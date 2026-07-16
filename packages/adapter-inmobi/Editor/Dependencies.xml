@@ -1,5 +1,5 @@
 <dependencies>
   <androidPackages>
-    <androidPackage spec="ai.themsp:inmobi-adapter:4.0.0" />
+    <androidPackage spec="ai.themsp:inmobi-adapter:4.5.0" />
   </androidPackages>
 </dependencies>

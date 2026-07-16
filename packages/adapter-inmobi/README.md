@@ -17,8 +17,8 @@ Add both packages to `Packages/manifest.json`:
 
 ## What this package adds
 
-- Android (Maven Central): `ai.themsp:inmobi-adapter:4.0.0`
-- iOS (CocoaPods): `InmobiAdapter` `4.0.9`
+- Android (Maven Central): `ai.themsp:inmobi-adapter:4.5.0`
+- iOS (CocoaPods): `InmobiAdapter` `4.5.0`
 - iOS bootstrap registration for `InmobiManager`
 
 ## Usage
