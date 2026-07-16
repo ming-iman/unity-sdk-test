@@ -51,7 +51,6 @@ namespace MSP.Unity.Editor
             }
 
             RunPodInstall(pathToBuiltProject);
-            MSPUnityIosPodsEmbedCleaner.StripBlockedFrameworks(pathToBuiltProject);
             MSPUnityLegacyPackageCleaner.CleanXcodeProject(pathToBuiltProject);
             MSPUnityIosAdapterBootstrapEnsurer.EnsureBootstrapSources(pathToBuiltProject);
         }

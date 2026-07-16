@@ -78,32 +78,12 @@ post_install do |installer|
     end
   end
 
-  blocked_embed_frameworks = %w[MSPSnapKit MSPKingfisher MSPNovaAdapter]
-  strip_blocked_framework_lines = Proc.new do |path|
-    next unless File.exist?(path)
-    lines = File.readlines(path)
-    filtered = lines.reject do |line|
-      blocked_embed_frameworks.any? {{ |name| line.include?(name) }}
-    end
-    next if filtered == lines
-    File.write(path, filtered.join)
-  end
-
-  pods_support_dir = File.join(installer.sandbox.root, 'Target Support Files', 'Pods-UnityFramework')
-  if Dir.exist?(pods_support_dir)
-    Dir.glob(File.join(pods_support_dir, '*')).each do |path|
-      next unless File.file?(path)
-      next unless path.include?('frameworks')
-      strip_blocked_framework_lines.call(path)
-    end
-  end
-
   installer.aggregate_targets.each do |aggregate_target|
     aggregate_target.user_project.native_targets.each do |native_target|
       next unless ['UnityFramework', 'Unity-iPhone'].include?(native_target.name)
       native_target.build_configurations.each do |config|
         runpaths = config.build_settings['LD_RUNPATH_SEARCH_PATHS'] || ['$(inherited)']
-        runpaths = [runpaths] unless runpaths.is_a?(Array)
+        runpaths = runpaths.to_s.split(/\s+/) unless runpaths.is_a?(Array)
         ['@executable_path/Frameworks', '@loader_path/Frameworks'].each do |entry|
           runpaths << entry unless runpaths.include?(entry)
         end
@@ -119,111 +99,141 @@ post_install do |installer|
     end
   end
 
-  installer.aggregate_targets.each do |aggregate_target|
-    aggregate_target.user_project.native_targets.each do |native_target|
-      next unless native_target.name == 'Unity-iPhone'
-      phase_name = '[MSP] Embed Runtime Frameworks'
-      phase = native_target.shell_script_build_phases.find do |p|
-        p.name == phase_name
-      end
-      if phase.nil?
-        phase = aggregate_target.user_project.new(Xcodeproj::Project::Object::PBXShellScriptBuildPhase)
-        phase.name = phase_name
-        native_target.build_phases << phase
-      end
-      phase.shell_script = <<~SCRIPT
-        APP_DST=""$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH""
-        for blocked in MSPSnapKit MSPKingfisher MSPNovaAdapter; do
-          rm -rf ""$APP_DST/${{blocked}}.framework""
-        done
+  unity_aggregate = installer.aggregate_targets.find do |target|
+    target.target_definition.name == 'UnityFramework'
+  end
+  raise '[MSP iOS] CocoaPods UnityFramework aggregate target was not found' if unity_aggregate.nil?
 
-        FRAMEWORKS_SCRIPT=""${{PODS_ROOT}}/Target Support Files/Pods-UnityFramework/Pods-UnityFramework-frameworks.sh""
-        if [ -f ""$FRAMEWORKS_SCRIPT"" ]; then
-          echo ""[MSP iOS] Embedding pod frameworks via CocoaPods script""
-          /bin/bash ""$FRAMEWORKS_SCRIPT""
-        else
-          echo ""[MSP iOS] Warning: Pods-UnityFramework-frameworks.sh not found""
+  # CocoaPods computes these collections from podspec linkage metadata.
+  # EmbedFrameworksScript filters XCFrameworks by dynamic build type, excluding
+  # static archives such as GoogleMobileAds, MSPSnapKit and SwiftProtobuf.
+  runtime_frameworks = unity_aggregate.framework_paths_by_config
+  runtime_xcframeworks = unity_aggregate.xcframeworks_by_config
+  support_dir = File.join(installer.sandbox.root, 'Target Support Files', 'Pods-UnityFramework')
+  FileUtils.mkdir_p(support_dir)
+  runtime_script_path = Pathname.new(File.join(support_dir, 'MSP-UnityFramework-runtime-frameworks.sh'))
+  Pod::Generator::EmbedFrameworksScript
+    .new(runtime_frameworks, runtime_xcframeworks)
+    .save_as(runtime_script_path)
+  runtime_framework_names = runtime_frameworks.values.flatten.map do |framework|
+    File.basename(framework.source_path.to_s, '.framework')
+  end
+  runtime_framework_names.concat(
+    runtime_xcframeworks.values.flatten
+      .select {{ |framework| framework.build_type.dynamic_framework? }}
+      .map(&:name)
+  )
+  runtime_framework_names = runtime_framework_names.uniq.sort
+  runtime_manifest_path = File.join(support_dir, 'MSP-UnityFramework-runtime-frameworks.txt')
+  File.write(runtime_manifest_path, runtime_framework_names.join(""\n"") + ""\n"")
+
+  user_project = unity_aggregate.user_project
+  unity_framework_target = user_project.native_targets.find {{ |target| target.name == 'UnityFramework' }}
+  unity_app_target = user_project.native_targets.find {{ |target| target.name == 'Unity-iPhone' }}
+  raise '[MSP iOS] UnityFramework target was not found' if unity_framework_target.nil?
+  raise '[MSP iOS] Unity-iPhone target was not found' if unity_app_target.nil?
+
+  unless unity_app_target.dependencies.any? {{ |dependency| dependency.target == unity_framework_target }}
+    unity_app_target.add_dependency(unity_framework_target)
+  end
+
+  obsolete_phase_names = [
+    '[MSP] Embed Runtime Frameworks',
+    '[MSP] Strip Invalid Frameworks',
+    '[MSP] Validate Runtime Frameworks'
+  ]
+  unity_app_target.shell_script_build_phases
+    .select {{ |phase| obsolete_phase_names.include?(phase.name) }}
+    .each {{ |phase| unity_app_target.build_phases.delete(phase) }}
+
+  embed_phase = user_project.new(Xcodeproj::Project::Object::PBXShellScriptBuildPhase)
+  embed_phase.name = '[MSP] Embed Runtime Frameworks'
+  embed_phase.shell_path = '/bin/bash'
+  embed_phase.always_out_of_date = '1'
+  embed_phase.shell_script = <<~SCRIPT
+    set -euo pipefail
+
+    RUNTIME_SCRIPT=""${{PODS_ROOT}}/Target Support Files/Pods-UnityFramework/MSP-UnityFramework-runtime-frameworks.sh""
+    RUNTIME_MANIFEST=""${{PODS_ROOT}}/Target Support Files/Pods-UnityFramework/MSP-UnityFramework-runtime-frameworks.txt""
+    if [ ! -x ""$RUNTIME_SCRIPT"" ]; then
+      echo ""error: [MSP iOS] Missing generated runtime framework script: $RUNTIME_SCRIPT""
+      exit 1
+    fi
+    if [ ! -f ""$RUNTIME_MANIFEST"" ]; then
+      echo ""error: [MSP iOS] Missing generated runtime framework manifest: $RUNTIME_MANIFEST""
+      exit 1
+    fi
+
+    echo ""[MSP iOS] Embedding CocoaPods runtime frameworks into $TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH""
+    /bin/bash ""$RUNTIME_SCRIPT""
+
+    APP_FRAMEWORKS=""$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH""
+    while IFS= read -r name; do
+      [ -n ""$name"" ] || continue
+      framework=""$APP_FRAMEWORKS/$name.framework""
+      if [ ! -d ""$framework"" ]; then
+        echo ""error: [MSP iOS] Expected runtime framework was not embedded: $name.framework""
+        exit 1
+      fi
+      binary=""$framework/$name""
+      if [ ! -f ""$binary"" ]; then
+        echo ""error: [MSP iOS] Embedded runtime framework has no binary: $framework""
+        exit 1
+      fi
+      if ! file ""$binary"" | grep -q 'dynamically linked shared library'; then
+        echo ""error: [MSP iOS] Refusing to embed non-dynamic framework: $framework""
+        exit 1
+      fi
+    done < ""$RUNTIME_MANIFEST""
+  SCRIPT
+  unity_app_target.build_phases << embed_phase
+
+  validate_phase = user_project.new(Xcodeproj::Project::Object::PBXShellScriptBuildPhase)
+  validate_phase.name = '[MSP] Validate Runtime Frameworks'
+  validate_phase.shell_path = '/bin/bash'
+  validate_phase.always_out_of_date = '1'
+  validate_phase.shell_script = <<~SCRIPT
+    set -euo pipefail
+
+    APP_FRAMEWORKS=""$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH""
+    UNITY_FRAMEWORK_BINARY=""$TARGET_BUILD_DIR/UnityFramework.framework/UnityFramework""
+    if [ ! -f ""$UNITY_FRAMEWORK_BINARY"" ]; then
+      echo ""error: [MSP iOS] UnityFramework binary was not built before runtime validation""
+      exit 1
+    fi
+
+    validate_rpaths() {{
+      local binary=""$1""
+      local dependencies
+      local self_install_name=""@rpath/$(basename ""$(dirname ""$binary"")"")/$(basename ""$binary"")""
+      dependencies=""$(otool -L ""$binary"" | awk 'index($1, ""@rpath/"") == 1 && index($1, "".framework/"") > 0 {{ print $1 }}')""
+      while IFS= read -r dependency; do
+        [ -n ""$dependency"" ] || continue
+        [ ""$dependency"" != ""$self_install_name"" ] || continue
+        relative_path=""${{dependency\#@rpath/}}""
+        if [ ! -e ""$APP_FRAMEWORKS/$relative_path"" ]; then
+          echo ""error: [MSP iOS] Missing runtime dependency for $(basename ""$binary""): $dependency""
+          return 1
         fi
+      done <<< ""$dependencies""
+    }}
 
-        embed_dylib_framework() {{
-          local src=""$1""
-          local name=""$2""
-          if [ ! -d ""$src"" ] || [ ! -f ""$src/Info.plist"" ]; then
-            return 1
-          fi
-          local bin=""$src/$name""
-          if [ ! -f ""$bin"" ] || file ""$bin"" | grep -q 'ar archive'; then
-            return 1
-          fi
-          local dst=""$APP_DST/${{name}}.framework""
-          ditto ""$src"" ""$dst""
-          if [ ""${{CODE_SIGNING_REQUIRED}}"" = ""YES"" ] && [ -n ""${{EXPANDED_CODE_SIGN_IDENTITY}}"" ] && [ ""${{EXPANDED_CODE_SIGN_IDENTITY}}"" != ""-"" ]; then
-            /usr/bin/codesign --force --sign ""${{EXPANDED_CODE_SIGN_IDENTITY}}"" ${{OTHER_CODE_SIGN_FLAGS}} --preserve-metadata=identifier,entitlements,flags --timestamp=none ""$dst""
-            echo ""[MSP iOS] Code signed ${{name}}.framework""
-          else
-            echo ""[MSP iOS] Warning: skipped codesign for ${{name}}.framework (no signing identity)""
-          fi
-          echo ""[MSP iOS] Embedded ${{name}}.framework""
-          return 0
-        }}
+    validate_rpaths ""$UNITY_FRAMEWORK_BINARY""
+    for framework in ""$APP_FRAMEWORKS""/*.framework; do
+      [ -d ""$framework"" ] || continue
+      name=""$(basename ""$framework"" .framework)""
+      binary=""$framework/$name""
+      [ -f ""$binary"" ] || continue
+      file ""$binary"" | grep -q 'dynamically linked shared library' || continue
+      validate_rpaths ""$binary""
+      if [ ""${{CODE_SIGNING_ALLOWED:-NO}}"" != ""NO"" ] && [ -n ""${{EXPANDED_CODE_SIGN_IDENTITY:-}}"" ]; then
+        /usr/bin/codesign --verify --strict ""$framework""
+      fi
+    done
 
-        for omsdk_src in \
-          ""$PODS_XCFRAMEWORKS_BUILD_DIR/MSPSharedLibraries/OMSDK_Newsbreak1.framework"" \
-          ""$PODS_XCFRAMEWORKS_BUILD_DIR/NovaCore/OMSDK_Newsbreak1.framework""; do
-          if embed_dylib_framework ""$omsdk_src"" ""OMSDK_Newsbreak1""; then
-            break
-          fi
-        done
-
-        for fw in ""$APP_DST""/*.framework; do
-          [ -d ""$fw"" ] || continue
-          fw_name=""$(basename ""$fw"" .framework)""
-          fw_bin=""$fw/$fw_name""
-          [ -f ""$fw_bin"" ] || continue
-          if file ""$fw_bin"" | grep -q 'ar archive'; then
-            echo ""[MSP iOS] Removing static framework ${{fw_name}} from app bundle""
-            rm -rf ""$fw""
-          fi
-        done
-      SCRIPT
-      native_target.build_phases.delete(phase)
-      native_target.build_phases << phase
-    end
-  end
-
-  installer.aggregate_targets.each do |aggregate_target|
-    aggregate_target.user_project.native_targets.each do |native_target|
-      next unless native_target.name == 'Unity-iPhone'
-      phase_name = '[MSP] Strip Invalid Frameworks'
-      phase = native_target.shell_script_build_phases.find do |p|
-        p.name == phase_name
-      end
-      if phase.nil?
-        phase = aggregate_target.user_project.new(Xcodeproj::Project::Object::PBXShellScriptBuildPhase)
-        phase.name = phase_name
-        native_target.build_phases << phase
-      end
-      phase.shell_script = <<~SCRIPT
-        APP_DST=""$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH""
-        for blocked in MSPSnapKit MSPKingfisher MSPNovaAdapter; do
-          rm -rf ""$APP_DST/${{blocked}}.framework""
-        done
-
-        for fw in ""$APP_DST""/*.framework; do
-          [ -d ""$fw"" ] || continue
-          fw_name=""$(basename ""$fw"" .framework)""
-          fw_bin=""$fw/$fw_name""
-          [ -f ""$fw_bin"" ] || continue
-          if file ""$fw_bin"" | grep -q 'ar archive'; then
-            echo ""[MSP iOS] Removing static framework ${{fw_name}} from app bundle""
-            rm -rf ""$fw""
-          fi
-        done
-      SCRIPT
-      native_target.build_phases.delete(phase)
-      native_target.build_phases << phase
-    end
-  end
+    echo ""[MSP iOS] Runtime framework validation passed""
+  SCRIPT
+  unity_app_target.build_phases << validate_phase
 
   resources_script = File.join(
     installer.sandbox.root,
@@ -300,6 +310,11 @@ end
                     yield return new MSPUnityIosPod("MSPCore", MSPUnityIosPodSource.SdkRoot);
                     yield return new MSPUnityIosPod("MSPPrebidAdapter", MSPUnityIosPodSource.SdkRoot);
                     yield return new MSPUnityIosPod("MSPSharedLibraries", MSPUnityIosPodSource.SdkRoot);
+                    foreach (var thirdParty in ResolveLocalThirdPartyPods())
+                    {
+                        yield return thirdParty;
+                    }
+
                     yield return pod;
                     yield break;
                 case "MSPNovaAdapter":
