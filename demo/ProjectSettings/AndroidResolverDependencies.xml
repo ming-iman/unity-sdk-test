@@ -1,5 +1,9 @@
 <dependencies>
   <packages>
+    <package>ai.themsp:facebook-adapter:4.5.0</package>
+    <package>ai.themsp:google-adapter:4.5.0</package>
+    <package>ai.themsp:liftoff-adapter:4.5.0</package>
+    <package>ai.themsp:moloco-adapter:4.5.0</package>
     <package>ai.themsp:msp-core:4.5.0</package>
     <package>ai.themsp:nova-adapter:4.5.0</package>
     <package>ai.themsp:prebid-adapter:4.5.0</package>

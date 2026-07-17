@@ -1,7 +1,4 @@
 ﻿<Solution>
-  <Project Path="MSP.Unity.Adapter.Nova.Editor.csproj" />
-  <Project Path="MSP.Unity.Editor.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
-  <Project Path="MSP.Unity.Runtime.csproj" />
-  <Project Path="MSP.Unity.Adapter.Nova.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
 </Solution>

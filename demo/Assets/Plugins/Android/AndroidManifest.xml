@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
     <application
         android:networkSecurityConfig="@xml/network_security_config">
-        <!-- Google sample AdMob App ID (replace for production) -->
+        <!-- Same test App ID as msp-android demo app -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713" />

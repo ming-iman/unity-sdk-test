@@ -6,6 +6,10 @@ apply from: '../shared/common.gradle'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 // Android Resolver Dependencies Start
+    implementation 'ai.themsp:facebook-adapter:4.5.0' // Packages/ai.themsp.unity.adapter.facebook/Editor/Dependencies.xml:3
+    implementation 'ai.themsp:google-adapter:4.5.0' // Packages/ai.themsp.unity.adapter.google/Editor/Dependencies.xml:3
+    implementation 'ai.themsp:liftoff-adapter:4.5.0' // Packages/ai.themsp.unity.adapter.liftoff/Editor/Dependencies.xml:3
+    implementation 'ai.themsp:moloco-adapter:4.5.0' // Packages/ai.themsp.unity.adapter.moloco/Editor/Dependencies.xml:3
     implementation 'ai.themsp:msp-core:4.5.0' // Packages/ai.themsp.unity.core/Editor/Dependencies.xml:3
     implementation 'ai.themsp:nova-adapter:4.5.0' // Packages/ai.themsp.unity.adapter.nova/Editor/Dependencies.xml:3
     implementation 'ai.themsp:prebid-adapter:4.5.0' // Packages/ai.themsp.unity.core/Editor/Dependencies.xml:4

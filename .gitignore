@@ -15,10 +15,30 @@ demo/.utmp/
 demo/build/
 demo/*.apk
 
+# Unity demo generated (continued)
+demo/[Mm]emoryCaptures/
+demo/[Rr]ecordings/
+demo/[Ii][Oo][Ss]/
+demo/[Aa]ndroid/
+demo/Thumbs.db
+
 # Unity IDE-generated project files (regenerated on open / platform switch)
 demo/*.csproj
 demo/*.sln
+demo/*.slnx
 demo/*.csproj.user
+demo/*.userprefs
+demo/*.pidb
+demo/*.booproj
+demo/*.svd
+demo/*.pdb
+demo/*.mdb
+demo/*.opendb
+demo/*.VC.db
+
+# Local profile overrides (not tracked)
+demo/Assets/Scripts/GridLightAppProfiles.Local.cs
+demo/Assets/Scripts/GridLightAppProfiles.Local.cs.meta
 
 # Android bridge build
 android-bridge/bridge/build/

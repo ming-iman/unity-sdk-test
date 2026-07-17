@@ -1,42 +1,37 @@
-# MSP Android Bridge Setup
+# MSP Android 依赖说明
 
-This folder contains the Unity Android bridge AAR:
+## External Dependency Manager（EDM4U）
 
-- `msp-unity-bridge-release.aar`
+已内置在 `Assets/ExternalDependencyManager/`（无需再从 Git URL 安装）。
 
-`network_security_config.xml` (for HTTPS packet capture) is packaged inside the bridge AAR.
-Rebuild the AAR with `make install` in `android-bridge/` after bridge changes.
-Do **not** add `Assets/Plugins/Android/res/` — Unity 6000+ rejects plugin resources outside AARs.
+重新打开 Unity 后，顶部菜单应出现：
 
-To run real ads on Android device, you still need runtime dependencies required by MSP.
+**Assets → External Dependency Manager → Android Resolver → Force Resolve**
 
-Dependencies are declared by UPM packages (not in this demo `Assets` folder):
+若仍看不到该菜单：
 
-- Core (`ai.themsp.unity.core`): `msp-core`, `prebid-adapter` from Maven Central
-- Nova adapter (`ai.themsp.unity.adapter.nova`): `nova-adapter` from Maven Central
+1. 等待 Unity 完成脚本编译（右下角进度条结束）
+2. 查看 Console 是否有 `ExternalDependencyManager` 相关报错
+3. 尝试 **Assets → Reimport All**
 
-After changing packages, run **Assets > External Dependency Manager > Android Resolver > Force Resolve**.
+## 可以跳过 Force Resolve 吗？
 
-## Dependency resolution
+可以。`Assets/Plugins/Android/mainTemplate.gradle` 已包含 MSP 所需 Maven 依赖：
 
-Use EDM4U and enable **Custom Gradle Settings Template** (`Assets/Plugins/Android/settingsTemplate.gradle`).
+- `ai.themsp:msp-core:4.5.0`
+- `ai.themsp:prebid-adapter:4.5.0`
+- `ai.themsp:nova-adapter:4.5.0`
+- `ai.themsp:google-adapter:4.5.0`
+- `ai.themsp:facebook-adapter:4.5.0`
+- `ai.themsp:liftoff-adapter:4.5.0`
+- `ai.themsp:moloco-adapter:4.5.0`
 
-Dependency XML files are provided by installed MSP UPM packages under `Packages/`.
+若未改 MSP 包版本，可直接 **File → Build Settings → Android → Build**，不必先 Force Resolve。
 
-External users only need Maven Central and Google Maven.
+升级 MSP UPM 包后，建议再执行一次 Force Resolve，让 `mainTemplate.gradle` 与包内 `Dependencies.xml` 同步。
 
-If app crashes with `ClassNotFoundException` or `NoClassDefFoundError`, a runtime dependency is missing.
+## 其他检查
 
-## AdMob App ID (required for google-adapter)
-
-`google-adapter` pulls in Google Mobile Ads, which requires an AdMob App ID manifest entry.
-
-**Important:** `Assets/Plugins/Android/AndroidManifest.xml` is a **custom library manifest template**.
-It must include Unity's launcher activity (`UnityPlayerGameActivity` with `MAIN`/`LAUNCHER`),
-not just the AdMob `meta-data`. If the launcher activity is missing, Unity cannot auto-start the app after install.
-
-This demo's manifest is based on Unity's `UnityManifest.xml` with the Google **sample** AdMob App ID added.
-
-## Bundle ID
-
-Set your own application id in **Player Settings → Android → Package Name** (this demo uses `com.particlemedia.msp`).
+- **Player Settings → Android → Package Name**：`com.particlemedia.msp`
+- **Custom Gradle Settings Template** 已启用（`settingsTemplate.gradle`）
+- 构建前确认网络可访问 Maven Central / Google Maven
