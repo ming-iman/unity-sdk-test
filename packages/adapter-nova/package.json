@@ -1,7 +1,7 @@
 {
   "name": "ai.themsp.unity.adapter.nova",
   "displayName": "MSP Unity Adapter - Nova",
-  "version": "4.5.0-rc.0",
+  "version": "4.5.0-rc.1",
   "unity": "2021.3",
   "description": "Optional Nova adapter package for MSP Unity SDK.",
   "keywords": [
@@ -11,6 +11,6 @@
     "adapter"
   ],
   "dependencies": {
-    "ai.themsp.unity.core": "4.5.0-rc.0"
+    "ai.themsp.unity.core": "4.5.0-rc.1"
   }
 }

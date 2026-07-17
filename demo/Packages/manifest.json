@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "ai.themsp.unity.core": "https://github.com/ming-iman/unity-sdk-test.git?path=/upm#v4.5.0-rc.0",
-    "ai.themsp.unity.adapter.nova": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-nova#v4.5.0-rc.0",
+    "ai.themsp.unity.core": "https://github.com/ming-iman/unity-sdk-test.git?path=/upm#v4.5.0-rc.1",
+    "ai.themsp.unity.adapter.nova": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-nova#v4.5.0-rc.1",
     "com.google.external-dependency-manager": "https://github.com/googlesamples/unity-jar-resolver.git?path=upm",
     "com.unity.collab-proxy": "2.12.4",
     "com.unity.feature.development": "1.0.2",
