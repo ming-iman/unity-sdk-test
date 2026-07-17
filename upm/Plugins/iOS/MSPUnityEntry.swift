@@ -76,7 +76,7 @@ private struct UnityInitializationConfig {
 @objcMembers
 public final class MSPUnityEntry: NSObject {
     private static let unityGameObject = "MSPUnityListener"
-    private static let onInitMethod = "OnNativeInit"
+    fileprivate static let onInitMethod = "OnNativeInit"
     private static let onLoadMethod = "OnNativeLoad"
     private static let onEventMethod = "OnNativeEvent"
     private static let onErrorMethod = "OnNativeError"
@@ -86,7 +86,7 @@ public final class MSPUnityEntry: NSObject {
     fileprivate static var adListeners: [String: UnityAdListener] = [:]
     fileprivate static var placementsByLoader: [String: String] = [:]
     private static var registeredManagers: [AdNetworkManager] = []
-    private static var initListener: UnityInitListener?
+    fileprivate static var initListener: UnityInitListener?
     private static let linkedOptionalAdapterIds = [
         "nova",
         "google",
