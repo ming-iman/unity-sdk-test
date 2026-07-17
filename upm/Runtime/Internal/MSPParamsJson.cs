@@ -23,11 +23,8 @@ namespace MSP.Unity.Internal
                 { "orgId", parameters.OrgId },
                 { "appId", parameters.AppId },
                 { "prebidHost", parameters.PrebidHost },
-                { "hasUserConsent", parameters.HasUserConsent },
                 { "isAgeRestrictedUser", parameters.IsAgeRestrictedUser },
-                { "isDoNotSell", parameters.IsDoNotSell },
                 { "isInTestMode", parameters.IsInTestMode },
-                { "consentString", parameters.ConsentString },
                 { "parameters", parameters.Parameters },
                 { "appPackageName", parameters.AppPackageName },
                 { "appVersionName", parameters.AppVersionName }

@@ -47,11 +47,8 @@ private struct UnityInitializationConfig {
     let orgId: Int64
     let appId: Int64
     let prebidHost: String
-    let hasUserConsent: Bool
     let isAgeRestrictedUser: Bool
-    let isDoNotSell: Bool
     let isInTestMode: Bool
-    let consentString: String
     let parameters: [String: Any]
 
     var resolvedPrebidHostUrl: String {
@@ -208,11 +205,8 @@ public final class MSPUnityEntry: NSObject {
                 orgId: Int64(orgId),
                 appId: Int64(appId),
                 prebidHost: "",
-                hasUserConsent: true,
                 isAgeRestrictedUser: false,
-                isDoNotSell: false,
                 isInTestMode: isInTestMode,
-                consentString: "",
                 parameters: [:]
             )
         )
@@ -237,11 +231,8 @@ public final class MSPUnityEntry: NSObject {
             orgId: (dictionary["orgId"] as? NSNumber)?.int64Value ?? 0,
             appId: (dictionary["appId"] as? NSNumber)?.int64Value ?? 0,
             prebidHost: dictionary["prebidHost"] as? String ?? "",
-            hasUserConsent: dictionary["hasUserConsent"] as? Bool ?? true,
             isAgeRestrictedUser: dictionary["isAgeRestrictedUser"] as? Bool ?? false,
-            isDoNotSell: dictionary["isDoNotSell"] as? Bool ?? false,
             isInTestMode: dictionary["isInTestMode"] as? Bool ?? false,
-            consentString: dictionary["consentString"] as? String ?? "",
             parameters: dictionary["parameters"] as? [String: Any] ?? [:]
         )
         return initialize(config: config)
@@ -275,12 +266,6 @@ public final class MSPUnityEntry: NSObject {
             testMode: config.isInTestMode
         )
         MSP.shared.initMSP(initParams: unityParams, sdkInitListener: nil, adNetworkManagers: managers)
-
-        if !config.hasUserConsent || config.isDoNotSell || !config.consentString.isEmpty {
-            MSPLogger.shared.info(
-                message: "[MSPUnity] Consent fields received; MSP iOS 4.5.0 resolves them from the IAB TCF/CMP state"
-            )
-        }
 
         sendUnityMessage(
             method: onInitMethod,

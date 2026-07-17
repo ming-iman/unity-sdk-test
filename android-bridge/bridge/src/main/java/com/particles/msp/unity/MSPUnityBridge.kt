@@ -121,11 +121,8 @@ object MSPUnityBridge {
         val orgId: Long,
         val appId: Long,
         val prebidHost: String = "",
-        val hasUserConsent: Boolean = true,
         val isAgeRestrictedUser: Boolean = false,
-        val isDoNotSell: Boolean = false,
         val isInTestMode: Boolean = false,
-        val consentString: String = "",
         val parameters: Map<String, Any> = emptyMap(),
         val appPackageName: String = "",
         val appVersionName: String = "",
@@ -152,11 +149,8 @@ object MSPUnityBridge {
             orgId = obj.optLong("orgId"),
             appId = obj.optLong("appId"),
             prebidHost = obj.optString("prebidHost"),
-            hasUserConsent = obj.optBoolean("hasUserConsent", true),
             isAgeRestrictedUser = obj.optBoolean("isAgeRestrictedUser"),
-            isDoNotSell = obj.optBoolean("isDoNotSell"),
             isInTestMode = obj.optBoolean("isInTestMode"),
-            consentString = obj.optString("consentString"),
             parameters = parameters,
             appPackageName = obj.optString("appPackageName"),
             appVersionName = obj.optString("appVersionName"),
@@ -185,9 +179,6 @@ object MSPUnityBridge {
         }
         if (config.sourceApp.isNotBlank()) {
             Log.d(TAG, "sourceApp received; MSP Android 4.5.0 has no source-app initialization API")
-        }
-        if (!config.hasUserConsent || config.isDoNotSell || config.consentString.isNotBlank()) {
-            Log.d(TAG, "Consent fields received; MSP Android 4.5.0 resolves them from the IAB TCF/CMP state")
         }
     }
 
