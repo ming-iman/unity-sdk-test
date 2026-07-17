@@ -10,6 +10,8 @@ namespace MSP.Unity.Internal
         private static Action<bool, string> pendingInitCallback;
         private static readonly Dictionary<string, MSPAdListener> listenersByLoaderId =
             new Dictionary<string, MSPAdListener>();
+        private static readonly Dictionary<string, MSPAd> adsByLoaderId =
+            new Dictionary<string, MSPAd>();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void EnsureInstance()
@@ -41,11 +43,20 @@ namespace MSP.Unity.Internal
             listenersByLoaderId[loaderId] = listener;
         }
 
+        internal static void RegisterAd(string loaderId, MSPAd ad)
+        {
+            if (!string.IsNullOrEmpty(loaderId) && ad != null)
+            {
+                adsByLoaderId[loaderId] = ad;
+            }
+        }
+
         internal static void UnregisterLoadListener(string loaderId)
         {
             if (!string.IsNullOrEmpty(loaderId))
             {
                 listenersByLoaderId.Remove(loaderId);
+                adsByLoaderId.Remove(loaderId);
             }
         }
 
@@ -94,19 +105,21 @@ namespace MSP.Unity.Internal
                 return;
             }
 
+            adsByLoaderId.TryGetValue(message.loaderId, out var ad);
+
             switch (message.@event)
             {
                 case "clicked":
                 case "click":
-                    listener.OnAdClick?.Invoke(null);
+                    listener.OnAdClick?.Invoke(ad);
                     break;
                 case "impression":
                 case "display":
-                    listener.OnAdImpression?.Invoke(null);
+                    listener.OnAdImpression?.Invoke(ad);
                     break;
                 case "dismissed":
                 case "hide":
-                    listener.OnAdDismissed?.Invoke(null);
+                    listener.OnAdDismissed?.Invoke(ad);
                     break;
             }
         }

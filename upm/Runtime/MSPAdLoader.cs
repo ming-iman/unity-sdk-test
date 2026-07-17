@@ -35,7 +35,12 @@ namespace MSP.Unity
         public MSPAd GetAd(string placementId)
         {
             ThrowIfDisposed();
-            return client.GetAd(loaderId, placementId, adListener);
+            var ad = client.GetAd(loaderId, placementId, adListener);
+            if (ad != null)
+            {
+                MSPUnityListener.RegisterAd(loaderId, ad);
+            }
+            return ad;
         }
 
         public void Dispose()
