@@ -8,6 +8,6 @@ namespace MSP.Unity
         }
 
         public string PlacementId { get; }
-        internal string NativeAdToken { get; set; } = string.Empty;
+        internal string LoaderId { get; set; } = string.Empty;
     }
 }

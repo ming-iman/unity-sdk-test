@@ -16,7 +16,7 @@ namespace MSP.Unity.Samples
             }
         }
 
-        private readonly MSPAdLoader loader = new MSPAdLoader();
+        private MSPAdLoader loader;
         private MSPInterstitialAd cachedAd;
         [SerializeField] private string placementId = DefaultPlacementId;
         [SerializeField] private string testAdNetwork = "msp_nova";
@@ -45,11 +45,16 @@ namespace MSP.Unity.Samples
 
         public void Load()
         {
+            loader?.Dispose();
+            loader = new MSPAdLoader();
+            cachedAd = null;
+
+            var currentLoader = loader;
             var listener = new MSPAdListener
             {
                 OnAdLoaded = (pid, _) =>
                 {
-                    cachedAd = loader.GetAd(pid) as MSPInterstitialAd;
+                    cachedAd = currentLoader.GetAd(pid) as MSPInterstitialAd;
                     Debug.Log($"[MSP Sample] Ad loaded for {pid}");
                 },
                 OnError = (message, _) => Debug.LogError($"[MSP Sample] Load error: {message}"),
@@ -67,7 +72,7 @@ namespace MSP.Unity.Samples
                 request.TestParams["ad_network"] = testAdNetwork;
             }
 
-            loader.LoadAd(placementId, listener, request);
+            currentLoader.LoadAd(placementId, listener, request);
         }
 
         public void Show()
@@ -78,6 +83,12 @@ namespace MSP.Unity.Samples
                 return;
             }
             cachedAd.Show();
+        }
+
+        private void OnDestroy()
+        {
+            loader?.Dispose();
+            loader = null;
         }
     }
 }

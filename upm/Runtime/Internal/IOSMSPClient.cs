@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using MSP.Unity.Adapter;
 
@@ -7,8 +6,6 @@ namespace MSP.Unity.Internal
 {
     internal sealed class IOSMSPClient : IMSPClient
     {
-        private readonly Dictionary<string, string> placementTokens = new Dictionary<string, string>();
-
 #if UNITY_IOS && !UNITY_EDITOR
         [DllImport("__Internal")]
         private static extern IntPtr msp_unity_get_version();
@@ -23,17 +20,23 @@ namespace MSP.Unity.Internal
         private static extern void msp_unity_initialize_json(string initializationJson);
 
         [DllImport("__Internal")]
+        private static extern IntPtr msp_unity_create_ad_loader();
+
+        [DllImport("__Internal")]
+        private static extern void msp_unity_destroy_ad_loader(string loaderId);
+
+        [DllImport("__Internal")]
         private static extern void msp_unity_load_ad(
+            string loaderId,
             string placementId,
-            string requestToken,
             string customParamsJson,
             string testParamsJson);
 
         [DllImport("__Internal")]
-        private static extern bool msp_unity_get_ad(string placementId, string requestToken);
+        private static extern bool msp_unity_get_ad(string loaderId, string placementId);
 
         [DllImport("__Internal")]
-        private static extern void msp_unity_show_ad(string placementId, string requestToken);
+        private static extern void msp_unity_show_ad(string loaderId);
 #endif
 
         public string Version
@@ -68,47 +71,61 @@ namespace MSP.Unity.Internal
 #endif
         }
 
-        public void LoadAd(string placementId, MSPAdRequest adRequest, MSPAdListener adListener)
+        public string CreateAdLoader()
         {
-            var token = $"{placementId}-{Guid.NewGuid():N}";
-            placementTokens[placementId] = token;
-            MSPUnityListener.RegisterLoadListener(token, placementId, adListener);
 #if UNITY_IOS && !UNITY_EDITOR
-            var customJson = MSPParamsJson.Serialize(adRequest?.CustomParams);
-            var testJson = MSPParamsJson.Serialize(adRequest?.TestParams);
-            msp_unity_load_ad(placementId, token, customJson, testJson);
+            return Marshal.PtrToStringAnsi(msp_unity_create_ad_loader()) ?? string.Empty;
+#else
+            return Guid.NewGuid().ToString("N");
 #endif
         }
 
-        public MSPAd GetAd(string placementId, MSPAdListener adListener)
+        public void DestroyAdLoader(string loaderId)
         {
-            if (!placementTokens.TryGetValue(placementId, out var nativeAdToken))
-            {
-                return null;
-            }
-
 #if UNITY_IOS && !UNITY_EDITOR
-            if (!msp_unity_get_ad(placementId, nativeAdToken))
+            msp_unity_destroy_ad_loader(loaderId);
+#else
+            _ = loaderId;
+#endif
+        }
+
+        public void LoadAd(string loaderId, string placementId, MSPAdRequest adRequest, MSPAdListener adListener)
+        {
+            MSPUnityListener.RegisterLoadListener(loaderId, adListener);
+#if UNITY_IOS && !UNITY_EDITOR
+            var customJson = MSPParamsJson.Serialize(adRequest?.CustomParams);
+            var testJson = MSPParamsJson.Serialize(adRequest?.TestParams);
+            msp_unity_load_ad(loaderId, placementId, customJson, testJson);
+#else
+            _ = (loaderId, placementId, adRequest);
+#endif
+        }
+
+        public MSPAd GetAd(string loaderId, string placementId, MSPAdListener adListener)
+        {
+#if UNITY_IOS && !UNITY_EDITOR
+            if (!msp_unity_get_ad(loaderId, placementId))
             {
                 return null;
             }
 #else
-            if (string.IsNullOrEmpty(nativeAdToken))
+            if (string.IsNullOrEmpty(loaderId))
             {
                 return null;
             }
 #endif
-            var ad = new MSPInterstitialAd(placementId, this, adListener)
+            return new MSPInterstitialAd(placementId, this, adListener)
             {
-                NativeAdToken = nativeAdToken
+                LoaderId = loaderId
             };
-            return ad;
         }
 
-        public void ShowAd(string placementId, string nativeAdToken)
+        public void ShowAd(string loaderId)
         {
 #if UNITY_IOS && !UNITY_EDITOR
-            msp_unity_show_ad(placementId, nativeAdToken);
+            msp_unity_show_ad(loaderId);
+#else
+            _ = loaderId;
 #endif
         }
 

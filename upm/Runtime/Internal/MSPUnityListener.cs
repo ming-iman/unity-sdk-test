@@ -8,9 +8,7 @@ namespace MSP.Unity.Internal
     {
         private static MSPUnityListener instance;
         private static Action<bool, string> pendingInitCallback;
-        private static readonly Dictionary<string, MSPAdListener> listenersByToken =
-            new Dictionary<string, MSPAdListener>();
-        private static readonly Dictionary<string, MSPAdListener> listenersByPlacement =
+        private static readonly Dictionary<string, MSPAdListener> listenersByLoaderId =
             new Dictionary<string, MSPAdListener>();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -32,31 +30,22 @@ namespace MSP.Unity.Internal
             pendingInitCallback = callback;
         }
 
-        internal static void RegisterLoadListener(
-            string requestToken,
-            string placementId,
-            MSPAdListener listener)
+        internal static void RegisterLoadListener(string loaderId, MSPAdListener listener)
         {
             EnsureInstance();
-            if (string.IsNullOrEmpty(requestToken) || listener == null)
+            if (string.IsNullOrEmpty(loaderId) || listener == null)
             {
                 return;
             }
 
-            listenersByToken[requestToken] = listener;
-            listenersByPlacement[placementId] = listener;
+            listenersByLoaderId[loaderId] = listener;
         }
 
-        internal static void UnregisterLoadListener(string requestToken, string placementId)
+        internal static void UnregisterLoadListener(string loaderId)
         {
-            if (!string.IsNullOrEmpty(requestToken))
+            if (!string.IsNullOrEmpty(loaderId))
             {
-                listenersByToken.Remove(requestToken);
-            }
-
-            if (!string.IsNullOrEmpty(placementId))
-            {
-                listenersByPlacement.Remove(placementId);
+                listenersByLoaderId.Remove(loaderId);
             }
         }
 
@@ -71,41 +60,67 @@ namespace MSP.Unity.Internal
         {
             Debug.Log($"[MSPUnityListener] OnNativeLoad: {payload}");
             var message = JsonUtility.FromJson<NativeLoadMessage>(payload);
-            if (message == null || string.IsNullOrEmpty(message.placementId))
+            if (message == null || string.IsNullOrEmpty(message.loaderId))
             {
                 Debug.LogError("[MSPUnityListener] OnNativeLoad: invalid payload");
                 return;
             }
 
-            var listener = ResolveListener(message.requestToken, message.placementId);
+            var listener = ResolveListener(message.loaderId);
             if (listener?.OnAdLoaded == null)
             {
                 Debug.LogWarning(
-                    $"[MSPUnityListener] OnNativeLoad: no listener for placement={message.placementId}");
+                    $"[MSPUnityListener] OnNativeLoad: no listener for loaderId={message.loaderId}");
                 return;
             }
 
             listener.OnAdLoaded(
                 message.placementId,
                 NativeBridgeMessages.ToLoadInfoDictionary(message.loadInfo));
-            UnregisterLoadListener(message.requestToken, message.placementId);
         }
 
         public void OnNativeEvent(string payload)
         {
             Debug.Log($"[MSPUnityListener] OnNativeEvent: {payload}");
+            var message = JsonUtility.FromJson<NativeEventMessage>(payload);
+            if (message == null || string.IsNullOrEmpty(message.loaderId))
+            {
+                return;
+            }
+
+            var listener = ResolveListener(message.loaderId);
+            if (listener == null)
+            {
+                return;
+            }
+
+            switch (message.@event)
+            {
+                case "clicked":
+                case "click":
+                    listener.OnAdClick?.Invoke(null);
+                    break;
+                case "impression":
+                case "display":
+                    listener.OnAdImpression?.Invoke(null);
+                    break;
+                case "dismissed":
+                case "hide":
+                    listener.OnAdDismissed?.Invoke(null);
+                    break;
+            }
         }
 
         public void OnNativeError(string payload)
         {
             Debug.LogError($"[MSPUnityListener] OnNativeError: {payload}");
             var message = JsonUtility.FromJson<NativeErrorMessage>(payload);
-            if (message == null || string.IsNullOrEmpty(message.placementId))
+            if (message == null || string.IsNullOrEmpty(message.loaderId))
             {
                 return;
             }
 
-            var listener = ResolveListener(message.requestToken, message.placementId);
+            var listener = ResolveListener(message.loaderId);
             if (listener?.OnError == null)
             {
                 return;
@@ -118,21 +133,14 @@ namespace MSP.Unity.Internal
             }
 
             listener.OnError(message.error ?? "Unknown error", loadInfo);
-            UnregisterLoadListener(message.requestToken, message.placementId);
         }
 
-        private static MSPAdListener ResolveListener(string requestToken, string placementId)
+        private static MSPAdListener ResolveListener(string loaderId)
         {
-            if (!string.IsNullOrEmpty(requestToken) &&
-                listenersByToken.TryGetValue(requestToken, out var byToken))
+            if (!string.IsNullOrEmpty(loaderId) &&
+                listenersByLoaderId.TryGetValue(loaderId, out var listener))
             {
-                return byToken;
-            }
-
-            if (!string.IsNullOrEmpty(placementId) &&
-                listenersByPlacement.TryGetValue(placementId, out var byPlacement))
-            {
-                return byPlacement;
+                return listener;
             }
 
             return null;

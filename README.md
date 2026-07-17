@@ -133,17 +133,20 @@ MSP.Initialize(new MSPInitializationParameters
     IsInTestMode = true
 }, (success, message) => { /* … */ });
 
+// Prefer a new MSPAdLoader for each load (matches native AdLoader lifecycle).
 var loader = new MSPAdLoader();
 var request = new MSPAdRequest(placementId);
 request.TestParams["test_ad"] = true;
 request.TestParams["ad_network"] = "msp_nova";
 // request.CustomParams["your_key"] = "your_value";
 loader.LoadAd(placementId, listener, request);
+// in OnAdLoaded:
 var ad = loader.GetAd(placementId) as MSPInterstitialAd;
 ad?.Show();
+loader.Dispose(); // when finished with this loader
 ```
 
-API scope today: **interstitial only** (`Initialize` / `LoadAd` / `GetAd` / `Show`).
+API scope today: **interstitial only** (`Initialize` / `LoadAd` / `GetAd` / `Show`). Create a new `MSPAdLoader` for each ad load.
 
 ### 5. Demo project
 

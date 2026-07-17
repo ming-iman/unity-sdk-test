@@ -13,7 +13,7 @@ namespace MSP.Unity.Internal
     internal sealed class NativeLoadMessage
     {
         public string placementId;
-        public string requestToken;
+        public string loaderId;
         public NativeLoadInfo loadInfo;
     }
 
@@ -21,7 +21,7 @@ namespace MSP.Unity.Internal
     internal sealed class NativeErrorMessage
     {
         public string placementId;
-        public string requestToken;
+        public string loaderId;
         public string error;
         public NativeLoadInfo loadInfo;
     }
@@ -30,8 +30,8 @@ namespace MSP.Unity.Internal
     internal sealed class NativeEventMessage
     {
         public string placementId;
-        public string requestToken;
-        public string eventName;
+        public string loaderId;
+        public string @event;
     }
 
     internal static class NativeBridgeMessages

@@ -33,6 +33,7 @@ object MSPUnityBridge {
     private val adLoaders = ConcurrentHashMap<String, AdLoader>()
     private val adListeners = ConcurrentHashMap<String, UnityAdListener>()
     private val readyAds = ConcurrentHashMap<String, MSPAd>()
+    private val placementsByLoader = ConcurrentHashMap<String, String>()
 
     @JvmStatic
     fun getVersion(): String = MSP.version
@@ -213,26 +214,48 @@ object MSPUnityBridge {
     }
 
     @JvmStatic
+    fun createAdLoader(): String {
+        val loaderId = java.util.UUID.randomUUID().toString().replace("-", "")
+        adLoaders[loaderId] = AdLoader()
+        Log.i(TAG, "createAdLoader loaderId=$loaderId")
+        return loaderId
+    }
+
+    @JvmStatic
+    fun destroyAdLoader(loaderId: String) {
+        adLoaders.remove(loaderId)
+        adListeners.remove(loaderId)
+        readyAds.remove(loaderId)
+        placementsByLoader.remove(loaderId)
+        Log.i(TAG, "destroyAdLoader loaderId=$loaderId")
+    }
+
+    @JvmStatic
     fun loadAd(
+        loaderId: String,
         placementId: String,
-        requestToken: String,
         customParamsJson: String?,
         testParamsJson: String?,
     ) {
         val context = currentContext() ?: return
+        val adLoader = adLoaders[loaderId]
+        if (adLoader == null) {
+            Log.e(TAG, "loadAd aborted: unknown loaderId=$loaderId")
+            sendShowError(placementId, loaderId, "Unknown MSPAdLoader")
+            return
+        }
         val resolvedPlacementId = if (placementId.isBlank()) DEMO_INTERSTITIAL_PLACEMENT else placementId
         val customParams = jsonToMap(customParamsJson)
         val testParams = jsonToMap(testParamsJson)
         Log.i(
             TAG,
-            "loadAd called. placementId=$resolvedPlacementId requestToken=$requestToken " +
+            "loadAd called. loaderId=$loaderId placementId=$resolvedPlacementId " +
                 "customParams=$customParams testParams=$testParams"
         )
-        readyAds.remove(requestToken)
-        val adLoader = AdLoader()
-        val adListener = UnityAdListener(resolvedPlacementId, requestToken)
-        adLoaders[requestToken] = adLoader
-        adListeners[requestToken] = adListener
+        readyAds.remove(loaderId)
+        placementsByLoader[loaderId] = resolvedPlacementId
+        val adListener = UnityAdListener(resolvedPlacementId, loaderId)
+        adListeners[loaderId] = adListener
 
         val adRequest = AdRequest.Builder(AdFormat.INTERSTITIAL)
             .setContext(context)
@@ -242,12 +265,6 @@ object MSPUnityBridge {
             .build()
 
         adLoader.loadAd(resolvedPlacementId, adListener, adRequest)
-    }
-
-    @JvmStatic
-    fun loadAd(placementId: String, requestToken: String) {
-        // Backward-compatible overload for older Unity C# layer.
-        loadAd(placementId, requestToken, null, null)
     }
 
     private fun jsonToMap(json: String?): Map<String, Any> {
@@ -288,40 +305,41 @@ object MSPUnityBridge {
     }
 
     @JvmStatic
-    fun getAd(placementId: String, requestToken: String): Boolean {
-        readyAds[requestToken]?.let { return it is InterstitialAd }
-        val adLoader = adLoaders[requestToken] ?: return false
+    fun getAd(loaderId: String, placementId: String): Boolean {
+        readyAds[loaderId]?.let { return it is InterstitialAd }
+        val adLoader = adLoaders[loaderId] ?: return false
         val ad = adLoader.getAd(placementId) ?: return false
         if (ad !is InterstitialAd) {
             return false
         }
-        readyAds[requestToken] = ad
+        readyAds[loaderId] = ad
         return true
     }
 
     @JvmStatic
-    fun showAd(placementId: String, requestToken: String) {
+    fun showAd(loaderId: String) {
         val activity = UnityPlayer.currentActivity
+        val placementId = placementsByLoader[loaderId].orEmpty()
         if (activity == null) {
-            sendShowError(placementId, requestToken, "Unity activity is null.")
+            sendShowError(placementId, loaderId, "Unity activity is null.")
             return
         }
-        val ad = readyAds[requestToken]
+        val ad = readyAds[loaderId]
         if (ad !is InterstitialAd) {
-            Log.e(TAG, "showAd failed. placementId=$placementId requestToken=$requestToken cachedAd=${ad?.javaClass?.simpleName}")
-            sendShowError(placementId, requestToken, "Interstitial ad is not available.")
+            Log.e(TAG, "showAd failed. loaderId=$loaderId placementId=$placementId cachedAd=${ad?.javaClass?.simpleName}")
+            sendShowError(placementId, loaderId, "Interstitial ad is not available.")
             return
         }
         activity.runOnUiThread {
-            Log.i(TAG, "showAd placementId=$placementId requestToken=$requestToken")
+            Log.i(TAG, "showAd loaderId=$loaderId placementId=$placementId")
             ad.show(activity)
         }
     }
 
-    private fun sendShowError(placementId: String, requestToken: String, error: String) {
+    private fun sendShowError(placementId: String, loaderId: String, error: String) {
         val payload = JSONObject()
             .put("placementId", placementId)
-            .put("requestToken", requestToken)
+            .put("loaderId", loaderId)
             .put("error", error)
             .toString()
         UnityPlayer.UnitySendMessage(UNITY_GAME_OBJECT, ON_ERROR, payload)
@@ -331,21 +349,21 @@ object MSPUnityBridge {
 
     private class UnityAdListener(
         private val placementId: String,
-        private val requestToken: String,
+        private val loaderId: String,
     ) : AdListener {
         override fun onAdLoaded(placementId: String, loadInfo: Map<String, Any>) {
             Log.i(TAG, "onAdLoaded placementId=$placementId loadInfo=$loadInfo")
-            val adLoader = adLoaders[requestToken]
+            val adLoader = adLoaders[loaderId]
             val ad = adLoader?.getAd(placementId)
             if (ad != null) {
-                readyAds[requestToken] = ad
+                readyAds[loaderId] = ad
                 Log.i(TAG, "onAdLoaded cached ad type=${ad.javaClass.simpleName}")
             } else {
-                Log.e(TAG, "onAdLoaded failed to cache ad for requestToken=$requestToken")
+                Log.e(TAG, "onAdLoaded failed to cache ad for loaderId=$loaderId")
             }
             val payload = JSONObject()
                 .put("placementId", placementId)
-                .put("requestToken", requestToken)
+                .put("loaderId", loaderId)
                 .put("loadInfo", JSONObject(loadInfo))
                 .toString()
             UnityPlayer.UnitySendMessage(UNITY_GAME_OBJECT, ON_LOAD, payload)
@@ -355,7 +373,7 @@ object MSPUnityBridge {
             Log.e(TAG, "onError placementId=$placementId msg=$msg loadInfo=$loadInfo")
             val payload = JSONObject()
                 .put("placementId", placementId)
-                .put("requestToken", requestToken)
+                .put("loaderId", loaderId)
                 .put("error", msg)
                 .put("loadInfo", JSONObject(loadInfo))
                 .toString()
@@ -377,7 +395,7 @@ object MSPUnityBridge {
         private fun sendLifecycle(eventName: String) {
             val payload = JSONObject()
                 .put("placementId", placementId)
-                .put("requestToken", requestToken)
+                .put("loaderId", loaderId)
                 .put("event", eventName)
                 .toString()
             UnityPlayer.UnitySendMessage(UNITY_GAME_OBJECT, ON_EVENT, payload)

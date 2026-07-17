@@ -1,38 +1,61 @@
 using System;
-using System.Collections.Generic;
 using MSP.Unity.Internal;
 
 namespace MSP.Unity
 {
-    public sealed class MSPAdLoader
+    /// <summary>
+    /// Thin wrapper around the native AdLoader / MSPAdLoader.
+    /// Prefer creating a new instance for each ad load.
+    /// </summary>
+    public sealed class MSPAdLoader : IDisposable
     {
         private readonly IMSPClient client;
-        private readonly Dictionary<string, MSPAdListener> listeners = new Dictionary<string, MSPAdListener>();
+        private readonly string loaderId;
+        private MSPAdListener adListener;
+        private bool disposed;
 
         public MSPAdLoader()
         {
             client = MSPClientFactory.Create();
+            loaderId = client.CreateAdLoader();
         }
 
         public void LoadAd(string placementId, MSPAdListener adListener, MSPAdRequest adRequest)
         {
+            ThrowIfDisposed();
             if (adRequest == null)
             {
                 throw new ArgumentNullException(nameof(adRequest));
             }
 
-            listeners[placementId] = adListener;
-            client.LoadAd(placementId, adRequest, adListener);
+            this.adListener = adListener;
+            client.LoadAd(loaderId, placementId, adRequest, adListener);
         }
 
         public MSPAd GetAd(string placementId)
         {
-            if (!listeners.TryGetValue(placementId, out var adListener))
+            ThrowIfDisposed();
+            return client.GetAd(loaderId, placementId, adListener);
+        }
+
+        public void Dispose()
+        {
+            if (disposed)
             {
-                return null;
+                return;
             }
 
-            return client.GetAd(placementId, adListener);
+            disposed = true;
+            MSPUnityListener.UnregisterLoadListener(loaderId);
+            client.DestroyAdLoader(loaderId);
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (disposed)
+            {
+                throw new ObjectDisposedException(nameof(MSPAdLoader));
+            }
         }
     }
 }

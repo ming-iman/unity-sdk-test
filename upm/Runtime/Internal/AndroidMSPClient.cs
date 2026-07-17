@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace MSP.Unity.Internal
@@ -7,7 +6,6 @@ namespace MSP.Unity.Internal
     internal sealed class AndroidMSPClient : IMSPClient
     {
         private const string BridgeClassName = "com.particles.msp.unity.MSPUnityBridge";
-        private readonly Dictionary<string, string> placementTokens = new Dictionary<string, string>();
 
         public string Version
         {
@@ -32,42 +30,46 @@ namespace MSP.Unity.Internal
             bridge.CallStatic("initializeJson", initializationJson);
         }
 
-        public void LoadAd(string placementId, MSPAdRequest adRequest, MSPAdListener adListener)
+        public string CreateAdLoader()
         {
-            var token = $"{placementId}-{Guid.NewGuid():N}";
-            placementTokens[placementId] = token;
-            MSPUnityListener.RegisterLoadListener(token, placementId, adListener);
+            using var bridge = new AndroidJavaClass(BridgeClassName);
+            return bridge.CallStatic<string>("createAdLoader");
+        }
+
+        public void DestroyAdLoader(string loaderId)
+        {
+            using var bridge = new AndroidJavaClass(BridgeClassName);
+            bridge.CallStatic("destroyAdLoader", loaderId);
+        }
+
+        public void LoadAd(string loaderId, string placementId, MSPAdRequest adRequest, MSPAdListener adListener)
+        {
+            MSPUnityListener.RegisterLoadListener(loaderId, adListener);
             var customJson = MSPParamsJson.Serialize(adRequest?.CustomParams);
             var testJson = MSPParamsJson.Serialize(adRequest?.TestParams);
             using var bridge = new AndroidJavaClass(BridgeClassName);
-            bridge.CallStatic("loadAd", placementId, token, customJson, testJson);
+            bridge.CallStatic("loadAd", loaderId, placementId, customJson, testJson);
         }
 
-        public MSPAd GetAd(string placementId, MSPAdListener adListener)
+        public MSPAd GetAd(string loaderId, string placementId, MSPAdListener adListener)
         {
-            if (!placementTokens.TryGetValue(placementId, out var nativeAdToken))
-            {
-                return null;
-            }
-
             using var bridge = new AndroidJavaClass(BridgeClassName);
-            var found = bridge.CallStatic<bool>("getAd", placementId, nativeAdToken);
+            var found = bridge.CallStatic<bool>("getAd", loaderId, placementId);
             if (!found)
             {
                 return null;
             }
 
-            var ad = new MSPInterstitialAd(placementId, this, adListener)
+            return new MSPInterstitialAd(placementId, this, adListener)
             {
-                NativeAdToken = nativeAdToken
+                LoaderId = loaderId
             };
-            return ad;
         }
 
-        public void ShowAd(string placementId, string nativeAdToken)
+        public void ShowAd(string loaderId)
         {
             using var bridge = new AndroidJavaClass(BridgeClassName);
-            bridge.CallStatic("showAd", placementId, nativeAdToken);
+            bridge.CallStatic("showAd", loaderId);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace MSP.Unity
 
         public void Show()
         {
-            client.ShowAd(PlacementId, NativeAdToken);
+            client.ShowAd(LoaderId);
         }
     }
 }

@@ -6,12 +6,14 @@
 + (BOOL)activateAdapterWithAdapterId:(NSString *)adapterId bootstrapClassName:(NSString *)bootstrapClassName;
 + (BOOL)initializeWithPrebidApiKey:(NSString *)prebidApiKey orgId:(int32_t)orgId appId:(int32_t)appId isInTestMode:(BOOL)isInTestMode;
 + (BOOL)initializeWithJson:(NSString *)json;
-+ (BOOL)loadAdWithPlacementId:(NSString *)placementId
-                 requestToken:(NSString *)requestToken
-             customParamsJson:(NSString *)customParamsJson
-               testParamsJson:(NSString *)testParamsJson;
-+ (BOOL)hasAdWithPlacementId:(NSString *)placementId requestToken:(NSString *)requestToken;
-+ (BOOL)showAdWithPlacementId:(NSString *)placementId requestToken:(NSString *)requestToken;
++ (NSString *)createAdLoader;
++ (void)destroyAdLoaderWithLoaderId:(NSString *)loaderId;
++ (BOOL)loadAdWithLoaderId:(NSString *)loaderId
+               placementId:(NSString *)placementId
+          customParamsJson:(NSString *)customParamsJson
+            testParamsJson:(NSString *)testParamsJson;
++ (BOOL)hasAdWithLoaderId:(NSString *)loaderId placementId:(NSString *)placementId;
++ (BOOL)showAdWithLoaderId:(NSString *)loaderId;
 @end
 
 extern "C" const char* msp_unity_get_version() {
@@ -39,30 +41,39 @@ extern "C" void msp_unity_initialize_json(const char* initializationJson) {
     [MSPUnityEntry initializeWithJson:json];
 }
 
+extern "C" const char* msp_unity_create_ad_loader() {
+    NSString *loaderId = [MSPUnityEntry createAdLoader] ?: @"";
+    return strdup(loaderId.UTF8String);
+}
+
+extern "C" void msp_unity_destroy_ad_loader(const char* loaderId) {
+    NSString *lid = loaderId ? [NSString stringWithUTF8String:loaderId] : @"";
+    [MSPUnityEntry destroyAdLoaderWithLoaderId:lid];
+}
+
 extern "C" void msp_unity_load_ad(
+    const char* loaderId,
     const char* placementId,
-    const char* requestToken,
     const char* customParamsJson,
     const char* testParamsJson
 ) {
+    NSString *lid = loaderId ? [NSString stringWithUTF8String:loaderId] : @"";
     NSString *pid = placementId ? [NSString stringWithUTF8String:placementId] : @"";
-    NSString *token = requestToken ? [NSString stringWithUTF8String:requestToken] : @"";
     NSString *customJson = customParamsJson ? [NSString stringWithUTF8String:customParamsJson] : @"{}";
     NSString *testJson = testParamsJson ? [NSString stringWithUTF8String:testParamsJson] : @"{}";
-    [MSPUnityEntry loadAdWithPlacementId:pid
-                            requestToken:token
-                        customParamsJson:customJson
-                          testParamsJson:testJson];
+    [MSPUnityEntry loadAdWithLoaderId:lid
+                          placementId:pid
+                     customParamsJson:customJson
+                       testParamsJson:testJson];
 }
 
-extern "C" bool msp_unity_get_ad(const char* placementId, const char* requestToken) {
+extern "C" bool msp_unity_get_ad(const char* loaderId, const char* placementId) {
+    NSString *lid = loaderId ? [NSString stringWithUTF8String:loaderId] : @"";
     NSString *pid = placementId ? [NSString stringWithUTF8String:placementId] : @"";
-    NSString *token = requestToken ? [NSString stringWithUTF8String:requestToken] : @"";
-    return [MSPUnityEntry hasAdWithPlacementId:pid requestToken:token];
+    return [MSPUnityEntry hasAdWithLoaderId:lid placementId:pid];
 }
 
-extern "C" void msp_unity_show_ad(const char* placementId, const char* requestToken) {
-    NSString *pid = placementId ? [NSString stringWithUTF8String:placementId] : @"";
-    NSString *token = requestToken ? [NSString stringWithUTF8String:requestToken] : @"";
-    [MSPUnityEntry showAdWithPlacementId:pid requestToken:token];
+extern "C" void msp_unity_show_ad(const char* loaderId) {
+    NSString *lid = loaderId ? [NSString stringWithUTF8String:loaderId] : @"";
+    [MSPUnityEntry showAdWithLoaderId:lid];
 }

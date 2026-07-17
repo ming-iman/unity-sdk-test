@@ -84,6 +84,7 @@ public final class MSPUnityEntry: NSObject {
     fileprivate static var adLoaders: [String: MSPAdLoader] = [:]
     fileprivate static var loadedAds: [String: MSPAd] = [:]
     fileprivate static var adListeners: [String: UnityAdListener] = [:]
+    fileprivate static var placementsByLoader: [String: String] = [:]
     private static var registeredManagers: [AdNetworkManager] = []
     private static let linkedOptionalAdapterIds = [
         "nova",
@@ -274,28 +275,52 @@ public final class MSPUnityEntry: NSObject {
         return true
     }
 
+    public static func createAdLoader() -> String {
+        let loaderId = UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()
+        adLoaders[loaderId] = MSPAdLoader()
+        MSPLogger.shared.info(message: "[MSPUnity] createAdLoader loaderId=\(loaderId)")
+        return loaderId
+    }
+
+    public static func destroyAdLoader(loaderId: String) {
+        loadedAds.removeValue(forKey: loaderId)
+        adLoaders.removeValue(forKey: loaderId)
+        adListeners.removeValue(forKey: loaderId)
+        placementsByLoader.removeValue(forKey: loaderId)
+        MSPLogger.shared.info(message: "[MSPUnity] destroyAdLoader loaderId=\(loaderId)")
+    }
+
     @discardableResult
     public static func loadAd(
+        loaderId: String,
         placementId: String,
-        requestToken: String,
         customParamsJson: String?,
         testParamsJson: String?
     ) -> Bool {
-        guard !placementId.isEmpty, !requestToken.isEmpty else {
+        guard !loaderId.isEmpty, !placementId.isEmpty else {
             sendUnityMessage(
                 method: onErrorMethod,
-                payload: ["error": "placementId/requestToken is empty", "placementId": placementId, "requestToken": requestToken]
+                payload: ["error": "loaderId/placementId is empty", "placementId": placementId, "loaderId": loaderId]
             )
             return false
         }
 
-        let loader = MSPAdLoader()
+        guard let loader = adLoaders[loaderId] else {
+            sendUnityMessage(
+                method: onErrorMethod,
+                payload: ["error": "Unknown MSPAdLoader", "placementId": placementId, "loaderId": loaderId]
+            )
+            return false
+        }
+
+        loadedAds.removeValue(forKey: loaderId)
+        placementsByLoader[loaderId] = placementId
         let listener = UnityAdListener(
-            requestToken: requestToken,
+            loaderId: loaderId,
             placementId: placementId,
             loader: loader
         )
-        adListeners[requestToken] = listener
+        adListeners[loaderId] = listener
         let customParams = parseJsonObject(customParamsJson)
         let testParams = parseJsonObject(testParamsJson)
         let request = AdRequest(
@@ -309,7 +334,6 @@ public final class MSPUnityEntry: NSObject {
             testParams: testParams
         )
 
-        adLoaders[requestToken] = loader
         loader.loadAd(
             placementId: placementId,
             adListener: listener,
@@ -329,27 +353,28 @@ public final class MSPUnityEntry: NSObject {
         return object
     }
 
-    public static func hasAd(placementId _: String, requestToken: String) -> Bool {
-        guard let ad = loadedAds[requestToken] else { return false }
+    public static func hasAd(loaderId: String, placementId _: String) -> Bool {
+        guard let ad = loadedAds[loaderId] else { return false }
         return ad is InterstitialAd
     }
 
     @discardableResult
-    public static func showAd(placementId: String, requestToken: String) -> Bool {
+    public static func showAd(loaderId: String) -> Bool {
+        let placementId = placementsByLoader[loaderId] ?? ""
         guard let root = topViewController() else {
             sendUnityMessage(method: onErrorMethod, payload: [
                 "error": "No rootViewController",
                 "placementId": placementId,
-                "requestToken": requestToken,
+                "loaderId": loaderId,
             ])
             return false
         }
 
-        guard let ad = loadedAds[requestToken] as? InterstitialAd else {
+        guard let ad = loadedAds[loaderId] as? InterstitialAd else {
             sendUnityMessage(method: onErrorMethod, payload: [
                 "error": "Ad not available",
                 "placementId": placementId,
-                "requestToken": requestToken,
+                "loaderId": loaderId,
             ])
             return false
         }
@@ -360,14 +385,14 @@ public final class MSPUnityEntry: NSObject {
         return true
     }
 
-    fileprivate static func setLoadedAd(_ ad: MSPAd, for token: String) {
-        loadedAds[token] = ad
+    fileprivate static func setLoadedAd(_ ad: MSPAd, for loaderId: String) {
+        loadedAds[loaderId] = ad
     }
 
-    fileprivate static func clearAdState(for token: String) {
-        loadedAds.removeValue(forKey: token)
-        adLoaders.removeValue(forKey: token)
-        adListeners.removeValue(forKey: token)
+    fileprivate static func clearAdState(for loaderId: String) {
+        loadedAds.removeValue(forKey: loaderId)
+        adListeners.removeValue(forKey: loaderId)
+        // Keep the native MSPAdLoader alive until destroyAdLoader so the C# instance can reload.
     }
 
     fileprivate static func sendUnityMessage(method: String, payload: [String: Any]) {
@@ -414,12 +439,12 @@ private enum MSPLogLevel {
 }
 
 private final class UnityAdListener: NSObject, AdListener {
-    let requestToken: String
+    let loaderId: String
     let placementId: String
     weak var loader: MSPAdLoader?
 
-    init(requestToken: String, placementId: String, loader: MSPAdLoader) {
-        self.requestToken = requestToken
+    init(loaderId: String, placementId: String, loader: MSPAdLoader) {
+        self.loaderId = loaderId
         self.placementId = placementId
         self.loader = loader
         super.init()
@@ -429,11 +454,11 @@ private final class UnityAdListener: NSObject, AdListener {
 
     func onAdLoaded(placementId: String, loadInfo _: [String: Any]) {
         if let ad = loader?.getAd(placementId: placementId) {
-            MSPUnityEntry.setLoadedAd(ad, for: requestToken)
+            MSPUnityEntry.setLoadedAd(ad, for: loaderId)
         }
         MSPUnityEntry.sendUnityMessage(
             method: "OnNativeLoad",
-            payload: ["requestToken": requestToken, "placementId": placementId]
+            payload: ["loaderId": loaderId, "placementId": placementId]
         )
     }
 
@@ -442,7 +467,7 @@ private final class UnityAdListener: NSObject, AdListener {
             method: "OnNativeEvent",
             payload: [
                 "event": "display",
-                "requestToken": requestToken,
+                "loaderId": loaderId,
                 "placementId": placementId,
             ]
         )
@@ -453,11 +478,11 @@ private final class UnityAdListener: NSObject, AdListener {
             method: "OnNativeEvent",
             payload: [
                 "event": "hide",
-                "requestToken": requestToken,
+                "loaderId": loaderId,
                 "placementId": placementId,
             ]
         )
-        MSPUnityEntry.clearAdState(for: requestToken)
+        MSPUnityEntry.clearAdState(for: loaderId)
     }
 
     func onAdClick(ad _: MSPAd) {
@@ -465,7 +490,7 @@ private final class UnityAdListener: NSObject, AdListener {
             method: "OnNativeEvent",
             payload: [
                 "event": "click",
-                "requestToken": requestToken,
+                "loaderId": loaderId,
                 "placementId": placementId,
             ]
         )
@@ -480,11 +505,11 @@ private final class UnityAdListener: NSObject, AdListener {
             method: "OnNativeError",
             payload: [
                 "error": msg,
-                "requestToken": requestToken,
+                "loaderId": loaderId,
                 "placementId": placementId,
             ]
         )
-        MSPUnityEntry.clearAdState(for: requestToken)
+        MSPUnityEntry.clearAdState(for: loaderId)
     }
 
     func onAdRewardReceived(ad _: MSPAd) {
@@ -492,7 +517,7 @@ private final class UnityAdListener: NSObject, AdListener {
             method: "OnNativeEvent",
             payload: [
                 "event": "reward",
-                "requestToken": requestToken,
+                "loaderId": loaderId,
                 "placementId": placementId,
             ]
         )

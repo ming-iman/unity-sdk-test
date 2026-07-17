@@ -20,7 +20,7 @@ public class InterstitialTest : MonoBehaviour
         }
     }
 
-    private MSPAdLoader loader = new MSPAdLoader();
+    private MSPAdLoader loader;
     private MSPInterstitialAd cachedAd;
     [SerializeField] private string placementId = DefaultPlacementId;
     [SerializeField] private string testAdNetwork = "msp_nova";
@@ -61,11 +61,17 @@ public class InterstitialTest : MonoBehaviour
             Debug.LogWarning("MSP not initialized yet. Wait for init callback.");
             return;
         }
+
+        loader?.Dispose();
+        loader = new MSPAdLoader();
+        cachedAd = null;
+
+        var currentLoader = loader;
         var listener = new MSPAdListener
         {
             OnAdLoaded = (pid, _) =>
             {
-                cachedAd = loader.GetAd(pid) as MSPInterstitialAd;
+                cachedAd = currentLoader.GetAd(pid) as MSPInterstitialAd;
                 Debug.Log($"Loaded: {pid}");
             },
             OnError = (msg, _) => Debug.LogError($"Load error: {msg}"),
@@ -83,7 +89,7 @@ public class InterstitialTest : MonoBehaviour
             request.TestParams["ad_network"] = testAdNetwork;
         }
 
-        loader.LoadAd(placementId, listener, request);
+        currentLoader.LoadAd(placementId, listener, request);
     }
 
     public void Show()
@@ -94,6 +100,12 @@ public class InterstitialTest : MonoBehaviour
             return;
         }
         cachedAd.Show();
+    }
+
+    private void OnDestroy()
+    {
+        loader?.Dispose();
+        loader = null;
     }
 
     private void OnGUI()
