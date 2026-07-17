@@ -86,6 +86,7 @@ public final class MSPUnityEntry: NSObject {
     fileprivate static var adListeners: [String: UnityAdListener] = [:]
     fileprivate static var placementsByLoader: [String: String] = [:]
     private static var registeredManagers: [AdNetworkManager] = []
+    private static var initListener: UnityInitListener?
     private static let linkedOptionalAdapterIds = [
         "nova",
         "google",
@@ -266,12 +267,9 @@ public final class MSPUnityEntry: NSObject {
             ageRestrictedUser: config.isAgeRestrictedUser,
             testMode: config.isInTestMode
         )
-        MSP.shared.initMSP(initParams: unityParams, sdkInitListener: nil, adNetworkManagers: managers)
-
-        sendUnityMessage(
-            method: onInitMethod,
-            payload: ["status": "SUCCESS", "message": "MSP iOS init called"]
-        )
+        let listener = UnityInitListener()
+        initListener = listener
+        MSP.shared.initMSP(initParams: unityParams, sdkInitListener: listener, adNetworkManagers: managers)
         return true
     }
 
@@ -436,6 +434,16 @@ private enum MSPLogLevel {
     static let WARN = 5
     static let ERROR = 6
     static let ASSERT = 7
+}
+
+private final class UnityInitListener: NSObject, MSPInitListener {
+    func onComplete(status: MSPInitStatus, message: String) {
+        MSPUnityEntry.sendUnityMessage(
+            method: MSPUnityEntry.onInitMethod,
+            payload: ["status": "SUCCESS", "message": message]
+        )
+        MSPUnityEntry.initListener = nil
+    }
 }
 
 private final class UnityAdListener: NSObject, AdListener {
