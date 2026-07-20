@@ -47,6 +47,7 @@ public class GridLightGame : MonoBehaviour
     private Button _placementDropdownButton;
     private Text _placementDropdownLabel;
     private GameObject _placementDropdownList;
+    private GameObject _menuBackdrop;
     private ScrollRect _settingsScrollRect;
     private Vector2 _settingsCardDefaultSize;
     private bool _settingsKeyboardLifted;
@@ -129,7 +130,8 @@ public class GridLightGame : MonoBehaviour
     {
         _mainMenuPanel = CreatePanel(root, "MainMenu", GridLightTheme.BgWarm, false);
         Stretch(_mainMenuPanel.GetComponent<RectTransform>());
-        GridLightMenuBackdrop.Create(_mainMenuPanel.transform);
+        var backdrop = GridLightMenuBackdrop.Create(_mainMenuPanel.transform);
+        _menuBackdrop = backdrop.gameObject;
 
         var card = CreatePanel(_mainMenuPanel.transform, "MenuCard", GridLightTheme.Panel, true, true);
         var cardRect = card.GetComponent<RectTransform>();
@@ -723,6 +725,7 @@ public class GridLightGame : MonoBehaviour
             _placementDropdownList.SetActive(false);
         RestoreSettingsCardLayout();
         _mainMenuPanel.SetActive(true);
+        if (_menuBackdrop != null) _menuBackdrop.SetActive(true);
         _board3D.SetBoardVisible(false);
         _board3D.SetViewportMode(false);
 
@@ -742,6 +745,7 @@ public class GridLightGame : MonoBehaviour
         _board3D.SetInputEnabled(true);
         _currentLevel = Mathf.Max(1, levelNumber);
         _mainMenuPanel.SetActive(false);
+        if (_menuBackdrop != null) _menuBackdrop.SetActive(false);
         _gameplayPanel.SetActive(true);
         ApplyGameplayLayout();
         _board3D.SetViewportMode(true);
