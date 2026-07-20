@@ -22,6 +22,10 @@ demo/[Ii][Oo][Ss]/
 demo/[Aa]ndroid/
 demo/Thumbs.db
 
+# Unity editor package settings (auto-generated on open)
+demo/ProjectSettings/ProjectAuditorSettings.asset
+demo/ProjectSettings/TimelineSettings.asset
+
 # Unity IDE-generated project files (regenerated on open / platform switch)
 demo/*.csproj
 demo/*.sln
