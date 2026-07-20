@@ -44,10 +44,11 @@ public class GridLightGame : MonoBehaviour
     private Text _winBodyText;
     private readonly Dictionary<string, Button> _profileButtons = new Dictionary<string, Button>();
     private readonly Dictionary<string, Button> _adNetworkButtons = new Dictionary<string, Button>();
-    private InputField _placementInputField;
+    private Button _placementDropdownButton;
+    private Text _placementDropdownLabel;
+    private GameObject _placementDropdownList;
     private ScrollRect _settingsScrollRect;
     private Vector2 _settingsCardDefaultSize;
-    private bool _placementInputFocused;
     private bool _settingsKeyboardLifted;
     private GridLightAppProfile _pendingProfile;
     private int _lastScreenWidth;
@@ -268,22 +269,7 @@ public class GridLightGame : MonoBehaviour
         _settingsCurrentPlacementText.color = GridLightTheme.TextMuted;
         _settingsCurrentPlacementText.GetComponent<LayoutElement>().preferredWidth = 520f;
 
-        _placementInputField = CreateInputField(
-            contentGo.transform,
-            "PlacementInput",
-            "Enter MSP placement id",
-            OnPlacementEdited,
-            520f,
-            58f,
-            22);
-        // Android defaults to hiding the native keyboard text field, which leaves only the
-        // in-game InputField — and that is often covered by the soft keyboard.
-        _placementInputField.shouldHideMobileInput = false;
-        _placementInputField.onEndEdit.AddListener(_ =>
-        {
-            _placementInputFocused = false;
-            UpdateSettingsKeyboardAvoidance(force: true);
-        });
+        CreatePlacementDropdown(contentGo.transform);
 
         CreateButton(contentGo.transform, "Back", ShowMainMenu, GridLightTheme.AccentSoft, 220f, 60f, 24);
         _settingsPanel.SetActive(false);
@@ -350,7 +336,8 @@ public class GridLightGame : MonoBehaviour
         _settingsPanel.SetActive(true);
         _board3D.SetBoardVisible(false);
         _board3D.SetViewportMode(false);
-        _placementInputFocused = false;
+        if (_placementDropdownList != null)
+            _placementDropdownList.SetActive(false);
         RestoreSettingsCardLayout();
         RefreshSettingsSelection();
         ApplyGameplayLayout();
@@ -433,21 +420,44 @@ public class GridLightGame : MonoBehaviour
 
         var placement = GridLightAppProfiles.CurrentPlacement;
         _settingsCurrentPlacementText.text = $"Current Placement: {placement}";
-        if (_placementInputField != null)
-            _placementInputField.text = placement;
+        if (_placementDropdownLabel != null)
+            _placementDropdownLabel.text = placement;
     }
 
-    private void OnPlacementEdited(string placement)
+    private void TogglePlacementDropdown()
     {
-        var trimmed = (placement ?? string.Empty).Trim();
-        if (string.IsNullOrEmpty(trimmed))
-        {
-            RefreshSettingsSelection();
-            return;
-        }
+        if (_placementDropdownList == null) return;
+        _placementDropdownList.SetActive(!_placementDropdownList.activeSelf);
+    }
 
-        GridLightAppProfiles.SavePlacement(trimmed);
-        _settingsCurrentPlacementText.text = $"Current Placement: {trimmed}";
+    private void OnPlacementOptionSelected(string placement)
+    {
+        GridLightAppProfiles.SavePlacement(placement);
+        _placementDropdownLabel.text = placement;
+        _settingsCurrentPlacementText.text = $"Current Placement: {placement}";
+        if (_placementDropdownList != null)
+            _placementDropdownList.SetActive(false);
+    }
+
+    private static List<string> GetPlacementOptions()
+    {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        return new List<string>
+        {
+            "demo-android-interstitial",
+            "scoopz-android-launch-prod",
+            "scoopz-android-foryou-test-moloco-interstitial",
+            "msp-android-launch-fullscreen-interstitial-prod2",
+        };
+#else
+        return new List<string>
+        {
+            "demo-ios-launch-fullscreen",
+            "msp-ios-launch-fullscreen-interstitial-prod2",
+            "scoopz-ios-launch-prod",
+            "scoopz-ios-launch-test-moloco",
+        };
+#endif
     }
 
     private void UpdateSettingsKeyboardAvoidance(bool force = false)
@@ -462,31 +472,8 @@ public class GridLightGame : MonoBehaviour
             return;
         }
 
-        _placementInputFocused = _placementInputField != null && _placementInputField.isFocused;
-
-        var keyboardVisible = _placementInputFocused && TouchScreenKeyboard.visible;
-        if (!keyboardVisible)
-        {
-            if (_settingsKeyboardLifted || force)
-                RestoreSettingsCardLayout();
-            return;
-        }
-
-        var keyboardHeightUi = GetSoftKeyboardHeightUi();
-        if (keyboardHeightUi < 8f && !force)
-            return;
-
-        var canvasHeight = ((RectTransform)_uiCanvas.transform).rect.height;
-        var topPad = _isMobile ? 28f : 20f;
-        var availableHeight = Mathf.Clamp(canvasHeight - keyboardHeightUi - topPad - 12f, 360f, _settingsCardDefaultSize.y);
-
-        _settingsCardRect.anchorMin = _settingsCardRect.anchorMax = new Vector2(0.5f, 1f);
-        _settingsCardRect.pivot = new Vector2(0.5f, 1f);
-        _settingsCardRect.sizeDelta = new Vector2(_settingsCardDefaultSize.x, availableHeight);
-        _settingsCardRect.anchoredPosition = new Vector2(0f, -topPad);
-        _settingsKeyboardLifted = true;
-
-        ScrollPlacementInputIntoView();
+        if (_settingsKeyboardLifted || force)
+            RestoreSettingsCardLayout();
     }
 
     private void RestoreSettingsCardLayout()
@@ -513,7 +500,7 @@ public class GridLightGame : MonoBehaviour
 
     private void ScrollPlacementInputIntoView()
     {
-        if (_settingsScrollRect == null || _placementInputField == null)
+        if (_settingsScrollRect == null || _placementDropdownButton == null)
             return;
 
         Canvas.ForceUpdateCanvases();
@@ -531,7 +518,7 @@ public class GridLightGame : MonoBehaviour
             return;
         }
 
-        var item = _placementInputField.GetComponent<RectTransform>();
+        var item = _placementDropdownButton.GetComponent<RectTransform>();
         var itemCenterInContent = content.InverseTransformPoint(item.TransformPoint(item.rect.center));
         // Content pivot is top; y decreases downward.
         var distanceFromTop = -itemCenterInContent.y;
@@ -732,7 +719,8 @@ public class GridLightGame : MonoBehaviour
         _gameplayPanel.SetActive(false);
         _settingsPanel.SetActive(false);
         HideProfileConfirmation();
-        _placementInputFocused = false;
+        if (_placementDropdownList != null)
+            _placementDropdownList.SetActive(false);
         RestoreSettingsCardLayout();
         _mainMenuPanel.SetActive(true);
         _board3D.SetBoardVisible(false);
@@ -1348,6 +1336,84 @@ public class GridLightGame : MonoBehaviour
         Stretch(text.GetComponent<RectTransform>());
         UnityEngine.Object.Destroy(text.GetComponent<LayoutElement>());
         return btn;
+    }
+
+    private void CreatePlacementDropdown(Transform parent)
+    {
+        var buttonGo = new GameObject("PlacementDropdown", typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
+        buttonGo.transform.SetParent(parent, false);
+
+        var image = buttonGo.GetComponent<Image>();
+        image.color = GridLightTheme.PanelDeep;
+        image.sprite = GetRoundedSprite();
+        image.type = Image.Type.Sliced;
+
+        var layout = buttonGo.GetComponent<LayoutElement>();
+        layout.preferredHeight = 58f;
+        layout.minHeight = 58f;
+        layout.preferredWidth = 520f;
+        layout.flexibleWidth = 0f;
+
+        var colors = buttonGo.GetComponent<Button>().colors;
+        colors.highlightedColor = Color.Lerp(GridLightTheme.PanelDeep, Color.white, 0.12f);
+        colors.pressedColor = Color.Lerp(GridLightTheme.PanelDeep, Color.black, 0.12f);
+        colors.selectedColor = colors.highlightedColor;
+        buttonGo.GetComponent<Button>().colors = colors;
+
+        var btn = buttonGo.GetComponent<Button>();
+        btn.onClick.AddListener(TogglePlacementDropdown);
+        _placementDropdownButton = btn;
+
+        _placementDropdownLabel = CreateText(buttonGo.transform, "Label", "", 22, FontStyle.Normal, TextAnchor.MiddleLeft);
+        _placementDropdownLabel.color = GridLightTheme.TextDark;
+        var labelRect = _placementDropdownLabel.GetComponent<RectTransform>();
+        labelRect.anchorMin = new Vector2(0f, 0f);
+        labelRect.anchorMax = new Vector2(1f, 1f);
+        labelRect.offsetMin = new Vector2(18f, 8f);
+        labelRect.offsetMax = new Vector2(-40f, -8f);
+        UnityEngine.Object.Destroy(_placementDropdownLabel.GetComponent<LayoutElement>());
+
+        var arrow = CreateText(buttonGo.transform, "Arrow", "\u25BC", 20, FontStyle.Normal, TextAnchor.MiddleCenter);
+        arrow.color = GridLightTheme.TextDark;
+        var arrowRect = arrow.GetComponent<RectTransform>();
+        arrowRect.anchorMin = new Vector2(1f, 0.5f);
+        arrowRect.anchorMax = new Vector2(1f, 0.5f);
+        arrowRect.pivot = new Vector2(1f, 0.5f);
+        arrowRect.sizeDelta = new Vector2(24f, 22f);
+        arrowRect.anchoredPosition = new Vector2(-12f, 0f);
+        UnityEngine.Object.Destroy(arrow.GetComponent<LayoutElement>());
+
+        _placementDropdownList = new GameObject("PlacementList", typeof(RectTransform), typeof(Image), typeof(LayoutElement));
+        _placementDropdownList.transform.SetParent(parent, false);
+        _placementDropdownList.SetActive(false);
+
+        var listImage = _placementDropdownList.GetComponent<Image>();
+        listImage.color = GridLightTheme.PanelDeep;
+        listImage.sprite = GetRoundedSprite();
+        listImage.type = Image.Type.Sliced;
+
+        var listLayout = _placementDropdownList.AddComponent<VerticalLayoutGroup>();
+        listLayout.childAlignment = TextAnchor.UpperCenter;
+        listLayout.childControlWidth = true;
+        listLayout.childControlHeight = true;
+        listLayout.childForceExpandWidth = false;
+        listLayout.childForceExpandHeight = false;
+        listLayout.spacing = 4;
+        listLayout.padding = new RectOffset(8, 8, 8, 8);
+
+        var listFitter = _placementDropdownList.AddComponent<ContentSizeFitter>();
+        listFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        listFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+
+        var listLayoutEl = _placementDropdownList.GetComponent<LayoutElement>();
+        listLayoutEl.preferredWidth = 520f;
+
+        var options = GetPlacementOptions();
+        foreach (var option in options)
+        {
+            var capturedOption = option;
+            CreateButton(_placementDropdownList.transform, option, () => OnPlacementOptionSelected(capturedOption), GridLightTheme.PanelDeep, 500f, 44f, 18);
+        }
     }
 
     private static InputField CreateInputField(
