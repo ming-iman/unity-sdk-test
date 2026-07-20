@@ -171,7 +171,7 @@ public class GridLightGame : MonoBehaviour
         var card = CreatePanel(_settingsPanel.transform, "SettingsCard", GridLightTheme.Panel, true, true);
         _settingsCardRect = card.GetComponent<RectTransform>();
         _settingsCardRect.anchorMin = _settingsCardRect.anchorMax = new Vector2(0.5f, 0.5f);
-        _settingsCardDefaultSize = new Vector2(620f, _isMobile ? 980f : 760f);
+        _settingsCardDefaultSize = new Vector2(620f, _isMobile ? 1150f : 900f);
         _settingsCardRect.sizeDelta = _settingsCardDefaultSize;
 
         var viewportGo = new GameObject("SettingsViewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D), typeof(ScrollRect));
