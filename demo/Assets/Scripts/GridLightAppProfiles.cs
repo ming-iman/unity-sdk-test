@@ -195,7 +195,7 @@ public static class GridLightAppProfiles
                 ["google_app_id"] = "ca-app-pub-3940256099942544~3347511713",
                 ["applovin_sdk_key"] =
                     "6KrA5SQHFTBpGDUU4FeLIZGxGFmd1rORGfr5xlrJIMeXO8pdvuKPQO4WAfQpEZ4cXAOXoeSJJRoX0zcD4qBzak",
-                ["prebidBidRequestTimeoutMillis"] = 50000,
+                ["prebid_bid_request_timeout_millis"] = 50000,
             },
             iosInterstitialPlacement: "demo-ios-launch-fullscreen",
             androidInterstitialPlacement: "demo-android-interstitial-google-c2s-test",

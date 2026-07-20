@@ -125,7 +125,8 @@ MSP.Initialize(new MSPInitializationParameters
     {
         ["molocoAppKey"] = "YOUR_MOLOCO_APP_KEY",  // iOS native key
         ["moloco_app_key"] = "YOUR_MOLOCO_APP_KEY", // Android native key
-        ["prebidBidRequestTimeoutMillis"] = 30000,
+        ["prebidBidRequestTimeoutMillis"] = 30000, // iOS native key
+        ["prebid_bid_request_timeout_millis"] = 30000, // Android native key
         ["customFlags"] = new[] { "one", "two" }
     },
     AppPackageName = "com.example.app", // Android only
