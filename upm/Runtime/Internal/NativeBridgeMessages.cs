@@ -41,7 +41,7 @@ namespace MSP.Unity.Internal
             var dict = new Dictionary<string, object>();
             if (loadInfo != null && !string.IsNullOrEmpty(loadInfo.request_id))
             {
-                dict["request_id"] = loadInfo.request_id;
+                dict[MSPConstants.LoadInfoKeyRequestId] = loadInfo.request_id;
             }
             return dict;
         }

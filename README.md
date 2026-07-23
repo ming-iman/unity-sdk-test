@@ -123,11 +123,13 @@ MSP.Initialize(new MSPInitializationParameters
     PrebidHost = "https://msp.newsbreak.com",
     Parameters = new Dictionary<string, object>
     {
-        ["molocoAppKey"] = "YOUR_MOLOCO_APP_KEY",  // iOS native key
-        ["moloco_app_key"] = "YOUR_MOLOCO_APP_KEY", // Android native key
-        ["prebidBidRequestTimeoutMillis"] = 30000, // iOS native key
-        ["prebid_bid_request_timeout_millis"] = 30000, // Android native key
-        ["customFlags"] = new[] { "one", "two" }
+#if UNITY_IOS && !UNITY_EDITOR
+        [MSPConstants.Ios.InitParamKeyMolocoAppKey] = "YOUR_MOLOCO_APP_KEY",
+        [MSPConstants.Ios.InitParamKeyPrebidBidRequestTimeoutMillis] = 30000,
+#else
+        [MSPConstants.Android.InitParamKeyMolocoAppKey] = "YOUR_MOLOCO_APP_KEY",
+        [MSPConstants.Android.InitParamKeyPrebidBidRequestTimeoutMillis] = 30000,
+#endif
     },
     AppPackageName = "com.example.app", // Android only
     AppVersionName = "1.0.0",           // Android only

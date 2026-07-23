@@ -40,6 +40,14 @@ MSP.Initialize(new MSPInitializationParameters
     OrgId = YOUR_ORG_ID,
     AppId = YOUR_APP_ID,
     PrebidHost = "https://msp.newsbreak.com",
+    Parameters = new Dictionary<string, object>
+    {
+#if UNITY_IOS && !UNITY_EDITOR
+        [MSPConstants.Ios.InitParamKeyMolocoAppKey] = "YOUR_MOLOCO_APP_KEY",
+#else
+        [MSPConstants.Android.InitParamKeyMolocoAppKey] = "YOUR_MOLOCO_APP_KEY",
+#endif
+    },
     IsInTestMode = true,
 }, (success, message) => { /* handle result */ });
 ```
@@ -82,7 +90,8 @@ Edit `Assets/Scripts/GridLightAppProfiles.cs` and replace the test values in the
 - `sourceApp` — your iOS App Store ID
 - `orgId` / `appId` — your MSP organization & app IDs
 - `iosInterstitialPlacement` / `androidInterstitialPlacement` — your placement IDs
-- `iosParameters` / `androidParameters` — network-specific keys (Moloco, InMobi, PubMatic, etc.)
+- `iosParameters` — network keys via `MSPConstants.Ios.*` (Moloco, InMobi, PubMatic, etc.)
+- `androidParameters` — network keys via `MSPConstants.Android.*`
 
 See the [MSP dashboard](https://msp.newsbreak.com) for your account details.
 
