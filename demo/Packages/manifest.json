@@ -1,11 +1,11 @@
 {
   "dependencies": {
-    "ai.themsp.unity.core": "https://github.com/ming-iman/unity-sdk-test.git?path=/upm#v4.5.0-rc.2",
-    "ai.themsp.unity.adapter.nova": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-nova#v4.5.0-rc.2",
-    "ai.themsp.unity.adapter.google": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-google#v4.5.0-rc.2",
-    "ai.themsp.unity.adapter.facebook": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-facebook#v4.5.0-rc.2",
-    "ai.themsp.unity.adapter.liftoff": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-liftoff#v4.5.0-rc.2",
-    "ai.themsp.unity.adapter.moloco": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-moloco#v4.5.0-rc.2",
+    "ai.themsp.unity.core": "https://github.com/ming-iman/unity-sdk-test.git?path=/upm#v4.5.0-rc.3",
+    "ai.themsp.unity.adapter.nova": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-nova#v4.5.0-rc.3",
+    "ai.themsp.unity.adapter.google": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-google#v4.5.0-rc.3",
+    "ai.themsp.unity.adapter.facebook": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-facebook#v4.5.0-rc.3",
+    "ai.themsp.unity.adapter.liftoff": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-liftoff#v4.5.0-rc.3",
+    "ai.themsp.unity.adapter.moloco": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-moloco#v4.5.0-rc.3",
     "com.unity.collab-proxy": "2.12.4",
     "com.unity.feature.development": "1.0.2",
     "com.unity.inputsystem": "1.19.0",

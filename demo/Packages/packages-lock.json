@@ -1,52 +1,52 @@
 {
   "dependencies": {
     "ai.themsp.unity.adapter.facebook": {
-      "version": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-facebook#v4.5.0-rc.2",
+      "version": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-facebook#v4.5.0-rc.3",
       "depth": 0,
       "source": "git",
       "dependencies": {
-        "ai.themsp.unity.core": "4.5.0-rc.2"
+        "ai.themsp.unity.core": "4.5.0-rc.3"
       },
       "hash": "5137248e16bffc5dfb79e2cb9edbdc4ffbdfd28f"
     },
     "ai.themsp.unity.adapter.google": {
-      "version": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-google#v4.5.0-rc.2",
+      "version": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-google#v4.5.0-rc.3",
       "depth": 0,
       "source": "git",
       "dependencies": {
-        "ai.themsp.unity.core": "4.5.0-rc.2"
+        "ai.themsp.unity.core": "4.5.0-rc.3"
       },
       "hash": "5137248e16bffc5dfb79e2cb9edbdc4ffbdfd28f"
     },
     "ai.themsp.unity.adapter.liftoff": {
-      "version": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-liftoff#v4.5.0-rc.2",
+      "version": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-liftoff#v4.5.0-rc.3",
       "depth": 0,
       "source": "git",
       "dependencies": {
-        "ai.themsp.unity.core": "4.5.0-rc.2"
+        "ai.themsp.unity.core": "4.5.0-rc.3"
       },
       "hash": "5137248e16bffc5dfb79e2cb9edbdc4ffbdfd28f"
     },
     "ai.themsp.unity.adapter.moloco": {
-      "version": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-moloco#v4.5.0-rc.2",
+      "version": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-moloco#v4.5.0-rc.3",
       "depth": 0,
       "source": "git",
       "dependencies": {
-        "ai.themsp.unity.core": "4.5.0-rc.2"
+        "ai.themsp.unity.core": "4.5.0-rc.3"
       },
       "hash": "5137248e16bffc5dfb79e2cb9edbdc4ffbdfd28f"
     },
     "ai.themsp.unity.adapter.nova": {
-      "version": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-nova#v4.5.0-rc.2",
+      "version": "https://github.com/ming-iman/unity-sdk-test.git?path=/packages/adapter-nova#v4.5.0-rc.3",
       "depth": 0,
       "source": "git",
       "dependencies": {
-        "ai.themsp.unity.core": "4.5.0-rc.2"
+        "ai.themsp.unity.core": "4.5.0-rc.3"
       },
       "hash": "5137248e16bffc5dfb79e2cb9edbdc4ffbdfd28f"
     },
     "ai.themsp.unity.core": {
-      "version": "https://github.com/ming-iman/unity-sdk-test.git?path=/upm#v4.5.0-rc.2",
+      "version": "https://github.com/ming-iman/unity-sdk-test.git?path=/upm#v4.5.0-rc.3",
       "depth": 0,
       "source": "git",
       "dependencies": {},
